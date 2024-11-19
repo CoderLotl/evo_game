@@ -1,6 +1,6 @@
-import { TimeControl } from "./TimeControl.js";
-import { Creature } from "./Creature.js";
-import { Food } from "./Food.js";
+import { TimeControl } from "../Model/Classes/TimeControl.js";
+import { Creature } from "../Model/Classes/Creature.js";
+import { Food } from "../Model/Classes/Food.js";
 import { creatures, food_list } from "./Stores.js";
 
 let lastTime = 0;
