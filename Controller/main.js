@@ -3,9 +3,6 @@ import { Creature } from "../Model/Classes/Creature.js";
 import { Food } from "../Model/Classes/Food.js";
 import { creatures, food_list } from "./Stores.js";
 
-let lastTime = 0;
-const desiredFPS = 60;
-
 ////////////////////////////////
 // - - - - - - - - - - CORE
 ////////////////////////////////
@@ -21,29 +18,32 @@ document.addEventListener('DOMContentLoaded', ()=>
     timeControl.run();
 
     Init(game_container);
+
+    let func = ()=>
+    {
+        for(let i = 0; i < creatures.length; i++)
+        {
+            creatures[i].move();
+        }
+    }
+    
+    //console.log(creatures);
+    gameLoop(func, timeControl);
 });
 
 ////////////////////////////////
 // - - - - - - - - - - FUNCTIONS
 ////////////////////////////////
 
-function gameLoop(func)
+function gameLoop(func, timeControl)
 {
-    const deltaTime = currentTime - lastTime;
-    const interval = 1000 / desiredFPS;
-
-    if(deltaTime >= interval)
+    let loop = setInterval(() =>
     {
-        lastTime = currentTime;
-    
-        // Your code to be executed
-        console.log("Iteration!");
-        requestAnimationFrame(()=> gameLoop(func));
-    }
-    else
-    {
-        requestAnimationFrame(()=> gameLoop(func));
-    }
+        if(timeControl.isPaused != true)
+        {
+            func();
+        }
+    }, 100);
 }
 
 function Init(container)

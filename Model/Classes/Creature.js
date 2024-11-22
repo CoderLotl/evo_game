@@ -1,3 +1,5 @@
+import { food_list } from '../../Controller/Stores.js';
+
 export class Creature
 {
     constructor(container)
@@ -33,6 +35,7 @@ export class Creature
 
         let randomDegrees = Math.floor(Math.random() * 360);
         this.rotate(randomDegrees);
+        this.angle = randomDegrees;
 
         container.appendChild(this.body);
     }
@@ -44,6 +47,69 @@ export class Creature
 
     move()
     {
-        
+        let nearestFood = this.calculateNearestFood();
+
+        if(nearestFood)
+        {
+            let turnAngle = this.calculateTurnAngle(nearestFood);
+
+            this.rotate(turnAngle);
+
+            let arrivalPoint = this.calculateArrivalPoint(3);
+
+            this.x_pos = arrivalPoint.x;
+            this.y_pos = arrivalPoint.y;
+
+            this.body.style.top = `${this.y_pos}px`;
+            this.body.style.left = `${this.x_pos}px`;
+        }
+    }
+
+    calculateNearestFood()
+    {
+        let nearestFood = false;
+        for(const plant of food_list)
+        {
+            let dx = plant.x_pos - this.x_pos;
+            let dy = plant.y_pos - this.y_pos;
+            let distance = Math.sqrt(dx * dx + dy * dy);
+
+            if(nearestFood == false || nearestFood > distance)
+            {
+                nearestFood = {x_pos: plant.x_pos, y_pos: plant.y_pos};
+            }
+        }
+
+        return nearestFood;
+    }
+
+    calculateTurnAngle(nearestFood)
+    {
+        let dx = nearestFood.x_pos - this.x_pos;
+        let dy = nearestFood.y_pos - this.y_pos;
+
+        let targetAngleRadians = Math.atan2(dy, dx);
+        let targetAngleDegrees = targetAngleRadians * (180 / Math.PI);
+        let turnAngle = targetAngleDegrees - this.angle;
+
+        if(turnAngle > 180)
+        {
+            turnAngle -= 360;
+        }
+        else if(turnAngle < -180)
+        {
+            turnAngle += 360;
+        }
+
+        return turnAngle;
+    }
+
+    calculateArrivalPoint(distance)
+    {
+        let radians = this.angle * (Math.PI / 180);
+        let dx = distance * Math.cos(radians);
+        let dy = distance * Math.sin(radians);
+    
+        return { x: this.x_pos + dx, y: this.y_pos + dy };
     }
 }

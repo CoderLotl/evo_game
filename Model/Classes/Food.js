@@ -21,6 +21,9 @@ export class Food
         const randomX = Math.floor(Math.random() * (maxX - minX) + minX);
         const randomY = Math.floor(Math.random() * (maxY - minY) + minY);
 
+        this.x_pos = randomX;
+        this.y_pos = randomY;
+
         this.body.style.position = 'absolute';
         this.body.style.top = `${randomY}px`;
         this.body.style.left = `${randomX}px`;
