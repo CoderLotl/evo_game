@@ -29,7 +29,7 @@ export class Creature
         this.body.src = "../Resources/ax.webp";
 
         this.x_pos = randomX;
-        this.y_pos = randomY;
+        this.y_pos = randomY;        
 
         this.body.classList +='absolute w-[50px] h-[50px] duration-500 hover:drop-shadow-[0_0_35px_rgba(255,102,102,1)] hover:saturate-150';
 
@@ -47,7 +47,7 @@ export class Creature
 
     move()
     {
-        let nearestFood = this.calculateNearestFood();
+        let nearestFood = this.calculateNearestFood();        
 
         if(nearestFood)
         {
@@ -68,15 +68,24 @@ export class Creature
     calculateNearestFood()
     {
         let nearestFood = false;
-        for(const plant of food_list)
-        {
-            let dx = plant.x_pos - this.x_pos;
-            let dy = plant.y_pos - this.y_pos;
-            let distance = Math.sqrt(dx * dx + dy * dy);
+        let nearestDistance = false;        
+        for(let i = 0; i < food_list.length; i++)
+        {            
+            let dx = food_list[i].x_pos - this.x_pos;            
 
-            if(nearestFood == false || nearestFood > distance)
+            let dy = food_list[i].y_pos - this.y_pos;            
+
+            let distance = Math.round(Math.sqrt(dx * dx + dy * dy));
+
+            if(distance < 0)
             {
-                nearestFood = {x_pos: plant.x_pos, y_pos: plant.y_pos};
+                distance = distance * -1;
+            }
+
+            if(nearestDistance == false || nearestDistance > distance)
+            {
+                nearestDistance = distance;
+                nearestFood = {x_pos: food_list[i].x_pos, y_pos: food_list[i].y_pos};
             }
         }
 
@@ -107,8 +116,8 @@ export class Creature
     calculateArrivalPoint(distance)
     {
         let radians = this.angle * (Math.PI / 180);
-        let dx = distance * Math.cos(radians);
-        let dy = distance * Math.sin(radians);
+        let dx = Math.round(distance * Math.cos(radians));
+        let dy = Math.round(distance * Math.sin(radians));
     
         return { x: this.x_pos + dx, y: this.y_pos + dy };
     }

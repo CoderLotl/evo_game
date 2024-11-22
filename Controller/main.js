@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', ()=>
         }
     }
     
+    //creatures[0].move();
     //console.log(creatures);
     gameLoop(func, timeControl);
 });
@@ -48,7 +49,7 @@ function gameLoop(func, timeControl)
 
 function Init(container)
 {
-    for(let i = 0; i < 5; i++)
+    for(let i = 0; i < 1; i++)
     {
         let creature = new Creature(container);
         creatures.push(creature);
