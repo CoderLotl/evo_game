@@ -2,6 +2,7 @@ import { TimeControl } from "../Model/Classes/TimeControl.js";
 import { Creature } from "../Model/Classes/Creature.js";
 import { Food } from "../Model/Classes/Food.js";
 import { creatures, food_list } from "./Stores.js";
+import { feedingFrequency, foodToSpawn } from "./config.js";
 
 ////////////////////////////////
 // - - - - - - - - - - CORE
@@ -30,8 +31,6 @@ function gameLoop(timeControl, game_container)
 {
     //Variables
     let alreadyFeed = true;
-    let foodToSpawn = 2;
-    let feedingFrequency = 10;
 
     let creaturesControl = ()=>
     {
