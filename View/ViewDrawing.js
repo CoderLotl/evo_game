@@ -58,13 +58,13 @@ export function drawVariablesPanel()
     nud_food.type = 'number';
     nud_food.min = '0';
     nud_food.max = '100';
-    nud_food.value = storageManager.ReadLS('foodToSpawn');
+    nud_food.value = storageManager.ReadSS('foodToSpawn');
     nud_food.id = 'food_to_spawn';
     nud_food.name = 'food_to_spawn';
 
     nud_food.addEventListener('change', ()=>
     {
-        storageManager.WriteLS('foodToSpawn', nud_food.value);
+        storageManager.WriteSS('foodToSpawn', nud_food.value);
     });
 
     //Food Quantity container
@@ -85,13 +85,13 @@ export function drawVariablesPanel()
     nud_food_fr.type = 'number';
     nud_food_fr.min = '0';
     nud_food_fr.max = '100';
-    nud_food_fr.value = storageManager.ReadLS('feedingFrequency');
+    nud_food_fr.value = storageManager.ReadSS('feedingFrequency');
     nud_food_fr.id = 'food_frequency';
     nud_food_fr.name = 'food_frequency';
 
     nud_food_fr.addEventListener('change', ()=>
     {
-        storageManager.WriteLS('feedingFrequency', nud_food_fr.value);
+        storageManager.WriteSS('feedingFrequency', nud_food_fr.value);
     });
 }
 
