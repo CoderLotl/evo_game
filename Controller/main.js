@@ -19,37 +19,59 @@ document.addEventListener('DOMContentLoaded', ()=>
 
     Init(game_container);
 
-    let func = ()=>
-    {
-        for(let i = 0; i < creatures.length; i++)
-        {
-            creatures[i].move();
-        }
-    }
-    
-    //creatures[0].move();
-    //console.log(creatures);
-    gameLoop(func, timeControl);
+    gameLoop(timeControl, game_container);
 });
 
 ////////////////////////////////
 // - - - - - - - - - - FUNCTIONS
 ////////////////////////////////
 
-function gameLoop(func, timeControl)
+function gameLoop(timeControl, game_container)
 {
+    //Variables
+    let alreadyFeed = true;
+    let foodToSpawn = 2;
+    let feedingFrequency = 10;
+
+    let creaturesControl = ()=>
+    {
+        for(let i = 0; i < creatures.length; i++)
+        {
+            creatures[i].move();
+        }
+    }
+
+    let foodControl = ()=>
+    {
+        for(let i = 0; i < foodToSpawn; i++)
+        {
+            let newFood = new Food(game_container);
+            food_list.push(newFood);
+        }
+    };
+
     let loop = setInterval(() =>
     {
         if(timeControl.isPaused != true)
         {
-            func();
+            creaturesControl();            
+
+            if(timeControl.time % feedingFrequency == 0 && !alreadyFeed)
+            {
+                foodControl();
+                alreadyFeed = true;
+            }
+            if(timeControl.time % feedingFrequency != 0 && alreadyFeed)
+            {
+                alreadyFeed = false;
+            }
         }
     }, 100);
 }
 
 function Init(container)
 {
-    for(let i = 0; i < 1; i++)
+    for(let i = 0; i < 5; i++)
     {
         let creature = new Creature(container);
         creatures.push(creature);

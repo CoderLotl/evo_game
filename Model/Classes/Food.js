@@ -28,7 +28,7 @@ export class Food
         this.body.style.top = `${randomY}px`;
         this.body.style.left = `${randomX}px`;
         this.body.src = "../Resources/plant.png";
-        this.body.classList += 'w-[50px] h-[50px] duration-500 hover:drop-shadow-[0_0_35px_rgba(51,204,51,1)] hover:saturate-150';
+        this.body.classList += `w-[${bodyWidth}px] h-[${bodyHeight}px] duration-500 hover:drop-shadow-[0_0_35px_rgba(51,204,51,1)] hover:saturate-150`;
 
         container.appendChild(this.body);
     }

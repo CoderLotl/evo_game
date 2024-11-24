@@ -47,21 +47,36 @@ export class Creature
 
     move()
     {
-        let nearestFood = this.calculateNearestFood();        
-
+        let nearestFood = this.calculateNearestFood();
+      
         if(nearestFood)
         {
-            let turnAngle = this.calculateTurnAngle(nearestFood);
+            let dx = nearestFood.x_pos - this.x_pos;
+            let dy = nearestFood.y_pos - this.y_pos;
+      
+            // Calculate the distance to the food
+            let distance = Math.sqrt(dx * dx + dy * dy);
 
-            this.rotate(turnAngle);
-
-            let arrivalPoint = this.calculateArrivalPoint(3);
-
-            this.x_pos = arrivalPoint.x;
-            this.y_pos = arrivalPoint.y;
-
+            if(distance <= 50)
+            {
+                this.consumeFood(nearestFood);
+            }
+      
+            // Normalize the distance to a smaller value if needed
+            let movementDistance = 3;
+        
+            // Calculate the new position based on the normalized distance
+            this.x_pos += Math.round(movementDistance * dx / distance);
+            this.y_pos += Math.round(movementDistance * dy / distance);            
+        
+            // Update the DOM element's position
             this.body.style.top = `${this.y_pos}px`;
             this.body.style.left = `${this.x_pos}px`;
+        
+            // Calculate the new angle towards the food
+            let targetAngleRadians = Math.atan2(dy, dx);
+            let targetAngleDegrees = targetAngleRadians * (180 / Math.PI);
+            this.rotate(targetAngleDegrees);
         }
     }
 
@@ -92,33 +107,16 @@ export class Creature
         return nearestFood;
     }
 
-    calculateTurnAngle(nearestFood)
+    consumeFood(nearestFood)
     {
-        let dx = nearestFood.x_pos - this.x_pos;
-        let dy = nearestFood.y_pos - this.y_pos;
-
-        let targetAngleRadians = Math.atan2(dy, dx);
-        let targetAngleDegrees = targetAngleRadians * (180 / Math.PI);
-        let turnAngle = targetAngleDegrees - this.angle;
-
-        if(turnAngle > 180)
+        for(let i = 0; i < food_list.length; i++)
         {
-            turnAngle -= 360;
+            if(food_list[i].x_pos == nearestFood.x_pos && food_list[i].y_pos == nearestFood.y_pos)
+            {
+                food_list[i].body.remove();
+                food_list.splice(i, 1);
+                break;
+            }
         }
-        else if(turnAngle < -180)
-        {
-            turnAngle += 360;
-        }
-
-        return turnAngle;
-    }
-
-    calculateArrivalPoint(distance)
-    {
-        let radians = this.angle * (Math.PI / 180);
-        let dx = Math.round(distance * Math.cos(radians));
-        let dy = Math.round(distance * Math.sin(radians));
-    
-        return { x: this.x_pos + dx, y: this.y_pos + dy };
     }
 }

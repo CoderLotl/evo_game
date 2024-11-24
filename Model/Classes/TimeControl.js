@@ -35,17 +35,15 @@ export class TimeControl
         this.run();
     }
 
-    run(func = null)
-    {        
-        this.timer = setInterval(()=>
-        {            
-            this.time_counter_display.textContent = this.time;
-            this.time++;
+    run()
+    {
+        this.time_counter_display.textContent = this.time;
 
-            if(func)
-            {
-                func();
-            }
+        this.timer = setInterval(()=>
+        {
+            this.time++;
+            this.time_counter_display.textContent = this.time;
+                        
         }, 1000);
         this.btn_play.classList.add('active');
         this.btn_pause.classList.remove('active');
