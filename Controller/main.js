@@ -52,7 +52,6 @@ function gameLoop(timeControl, game_container)
     let foodControl = ()=>
     {
         let foodToSpawn = storageManager.ReadSS('foodToSpawn');
-        console.log(foodToSpawn);
         
         for(let i = 0; i < foodToSpawn; i++)
         {
