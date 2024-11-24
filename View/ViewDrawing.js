@@ -1,3 +1,6 @@
+import { foodToSpawn } from "../Controller/config.js";
+import { StorageManager } from "../Model/Utilities/StorageManager.js";
+
 export function drawTimer()
 {
     let timerControlContainer = document.createElement('div');
@@ -25,6 +28,42 @@ export function drawTimer()
     time_counter_panel.id = 'time_counter_panel';
     time_counter_panel.classList = 'mt-2 pl-2 text-amber-400';
     time_counter_panel.innerHTML = 'Time: <span id="time_counter" class="text-slate-200"></span>';
+}
+
+export function drawVariablesPanel()
+{
+    let storageManager = new StorageManager();
+
+    // Variables container
+    let variablesPanel = document.createElement('div');
+    document.getElementById('game_bar').append(variablesPanel);
+    variablesPanel.id = 'variables_panel';
+    variablesPanel.classList = 'ml-5';
+
+    //Food container
+    let foodContainer = document.createElement('div');
+    variablesPanel.append(foodContainer);
+    foodContainer.classList = 'flex flex-col justify-center';
+
+    let food_label = document.createElement('label');
+    foodContainer.append(food_label);
+    food_label.htmlFor = 'food_to_spawn';
+    food_label.textContent = 'Food to spawn';
+    food_label.classList = 'text-slate-200';
+
+    let nud_food = document.createElement('input');
+    foodContainer.append(nud_food);
+    nud_food.type = 'number';
+    nud_food.min = '0';
+    nud_food.max = '100';
+    nud_food.value = storageManager.ReadLS('foodToSpawn');
+    nud_food.id = 'food_to_spawn';
+    nud_food.name = 'food_to_spawn';
+
+    nud_food.addEventListener('change', ()=>
+    {
+        storageManager.WriteLS('foodToSpawn', nud_food.value);
+    });
 }
 
 export function drawGameContainer()

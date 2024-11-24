@@ -1,9 +1,10 @@
 import { TimeControl } from "../Model/Classes/TimeControl.js";
 import { Creature } from "../Model/Classes/Creature.js";
 import { Food } from "../Model/Classes/Food.js";
+import { StorageManager } from "../Model/Utilities/StorageManager.js";
 import { creatures, food_list } from "./Stores.js";
 import { feedingFrequency, foodToSpawn, gameOnline } from "./config.js";
-import { drawTimer, drawGameContainer, drawPlaceHolder } from "../View/ViewDrawing.js";
+import { drawTimer, drawGameContainer, drawPlaceHolder, drawVariablesPanel } from "../View/ViewDrawing.js";
 
 ////////////////////////////////
 // - - - - - - - - - - CORE
@@ -38,8 +39,9 @@ document.addEventListener('DOMContentLoaded', ()=>
 
 function gameLoop(timeControl, game_container)
 {
+    let storageManager = new StorageManager();
     //Variables
-    let alreadyFeed = true;
+    let alreadyFeed = true;    
 
     let creaturesControl = ()=>
     {
@@ -51,7 +53,9 @@ function gameLoop(timeControl, game_container)
 
     let foodControl = ()=>
     {
-        for(let i = 0; i < foodToSpawn; i++)
+        let foodToSpawn_ = storageManager.ReadLS('foodToSpawn');
+        console.log(foodToSpawn_);
+        for(let i = 0; i < foodToSpawn_; i++)
         {
             let newFood = new Food(game_container);
             food_list.push(newFood);
@@ -93,6 +97,16 @@ function Init(container)
 
 function setupGame()
 {
+    loadVariables();
     drawTimer();
-    drawGameContainer();
+    drawVariablesPanel();
+    drawGameContainer();    
+}
+
+function loadVariables()
+{
+    let storageManager = new StorageManager();
+
+    storageManager.WriteLS('foodToSpawn', foodToSpawn);
+    storageManager.WriteLS('feedingFrequency', feedingFrequency);
 }
