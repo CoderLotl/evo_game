@@ -38,21 +38,23 @@ export function drawVariablesPanel()
     let variablesPanel = document.createElement('div');
     document.getElementById('game_bar').append(variablesPanel);
     variablesPanel.id = 'variables_panel';
-    variablesPanel.classList = 'ml-5';
+    variablesPanel.classList = 'ml-5 mb-2';
 
-    //Food container
-    let foodContainer = document.createElement('div');
-    variablesPanel.append(foodContainer);
-    foodContainer.classList = 'flex flex-col justify-center';
+    //Food Spawn container
+    let foodContainer_Spawn = document.createElement('div');
+    variablesPanel.append(foodContainer_Spawn);
+    foodContainer_Spawn.classList = 'flex flex-col justify-center';
 
+    //Food Spawn Label
     let food_label = document.createElement('label');
-    foodContainer.append(food_label);
+    foodContainer_Spawn.append(food_label);
     food_label.htmlFor = 'food_to_spawn';
     food_label.textContent = 'Food to spawn';
     food_label.classList = 'text-slate-200';
 
+    //Food Spawn Input
     let nud_food = document.createElement('input');
-    foodContainer.append(nud_food);
+    foodContainer_Spawn.append(nud_food);
     nud_food.type = 'number';
     nud_food.min = '0';
     nud_food.max = '100';
@@ -63,6 +65,33 @@ export function drawVariablesPanel()
     nud_food.addEventListener('change', ()=>
     {
         storageManager.WriteLS('foodToSpawn', nud_food.value);
+    });
+
+    //Food Quantity container
+    let foodContainer_Frequency = document.createElement('div');
+    variablesPanel.append(foodContainer_Frequency);
+    foodContainer_Frequency.classList = 'flex flex-col justify-center';
+
+    //Food Frequency Label
+    let food_label_fr = document.createElement('label');
+    foodContainer_Frequency.append(food_label_fr);
+    food_label_fr.htmlFor = 'food_frequency';
+    food_label_fr.textContent = 'Food frequency';
+    food_label_fr.classList = 'text-slate-200';
+
+    //Food Frequency Input
+    let nud_food_fr = document.createElement('input');
+    foodContainer_Frequency.append(nud_food_fr);
+    nud_food_fr.type = 'number';
+    nud_food_fr.min = '0';
+    nud_food_fr.max = '100';
+    nud_food_fr.value = storageManager.ReadLS('feedingFrequency');
+    nud_food_fr.id = 'food_frequency';
+    nud_food_fr.name = 'food_frequency';
+
+    nud_food_fr.addEventListener('change', ()=>
+    {
+        storageManager.WriteLS('feedingFrequency', nud_food_fr.value);
     });
 }
 

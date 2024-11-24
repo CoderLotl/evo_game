@@ -66,14 +66,15 @@ function gameLoop(timeControl, game_container)
     {
         if(timeControl.isPaused != true)
         {
-            creaturesControl();            
+            let feedingFrequency_ = storageManager.ReadLS('feedingFrequency');
+            creaturesControl();
 
-            if(timeControl.time % feedingFrequency == 0 && !alreadyFeed)
+            if(timeControl.time % feedingFrequency_ == 0 && !alreadyFeed)
             {
                 foodControl();
                 alreadyFeed = true;
             }
-            if(timeControl.time % feedingFrequency != 0 && alreadyFeed)
+            if(timeControl.time % feedingFrequency_ != 0 && alreadyFeed)
             {
                 alreadyFeed = false;
             }
