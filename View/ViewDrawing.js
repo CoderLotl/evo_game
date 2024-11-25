@@ -4,7 +4,7 @@ import { StorageManager } from "../Model/Utilities/StorageManager.js";
 export function drawTimer()
 {
     let timerControlContainer = document.createElement('div');
-    timerControlContainer.classList = 'bg-slate-500 top-0 p-3 rounded-xl';
+    timerControlContainer.classList = 'bg-slate-500 top-0 p-3 rounded-xl ml-2';
     document.getElementById('game_bar').append(timerControlContainer);
 
     let timerControl = document.createElement('div');

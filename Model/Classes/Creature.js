@@ -1,5 +1,5 @@
 import { food_list } from '../../Controller/Stores.js';
-import { foodSize, creatureSize } from '../../Controller/config.js';
+import { foodSize, creatureSize, creatureSpeed } from '../../Controller/config.js';
 
 export class Creature
 {
@@ -111,7 +111,7 @@ export class Creature
         }
   
         // Normalize the distance to a smaller value if needed
-        let movementDistance = 3;
+        let movementDistance = creatureSpeed;
     
         // Calculate the new position based on the normalized distance
         this.x_pos += Math.round(movementDistance * dx / distance);
@@ -122,7 +122,7 @@ export class Creature
     
         // Calculate the new angle towards the food
         let targetAngleRadians = Math.atan2(dy, dx);
-        let targetAngleDegrees = targetAngleRadians * (180 / Math.PI);
+        let targetAngleDegrees = (targetAngleRadians * (180 / Math.PI)) / 3;
         this.rotate(targetAngleDegrees);
     }
 
