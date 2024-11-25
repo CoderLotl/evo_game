@@ -1,5 +1,6 @@
 import { food_list } from '../../Controller/Stores.js';
-import { foodSize, creatureSize, creatureSpeed } from '../../Controller/config.js';
+import { foodSize, creatureSize } from '../../Controller/config.js';
+import { StorageManager } from '../Utilities/StorageManager.js';
 
 export class Creature
 {
@@ -99,6 +100,9 @@ export class Creature
 
     moveTowardsFood(nearestFood)
     {
+        let storageManager = new StorageManager();
+
+        let baseLotlSpeed = storageManager.ReadSS('baseLotlSpeed')
         let dx = nearestFood.x_pos - this.x_pos;
         let dy = nearestFood.y_pos - this.y_pos;
   
@@ -111,7 +115,7 @@ export class Creature
         }
   
         // Normalize the distance to a smaller value if needed
-        let movementDistance = creatureSpeed;
+        let movementDistance = baseLotlSpeed;
     
         // Calculate the new position based on the normalized distance
         this.x_pos += Math.round(movementDistance * dx / distance);

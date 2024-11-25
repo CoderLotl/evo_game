@@ -30,6 +30,40 @@ export function drawTimer()
     time_counter_panel.innerHTML = 'Time: <span id="time_counter" class="text-slate-200"></span>';
 }
 
+export function drawVariablesPanel2()
+{
+    let storageManager = new StorageManager();
+
+    let variablesPanel2 = document.createElement('div');
+    document.getElementById('game_bar').append(variablesPanel2);
+    variablesPanel2.id = 'variables_panel2';
+    variablesPanel2.classList = 'ml-5';
+
+    let lotlsContainer = document.createElement('div');
+    variablesPanel2.append(lotlsContainer);
+    lotlsContainer.classList = 'flex flex-col justify-center';
+
+    let lotlsSpeed_label = document.createElement('label');
+    lotlsContainer.append(lotlsSpeed_label);
+    lotlsSpeed_label.htmlFor = 'lotls_speed';
+    lotlsSpeed_label.textContent = 'Lotls base speed';
+    lotlsSpeed_label.classList = 'text-slate-200';
+
+    let nud_lotlsSpeed = document.createElement('input');
+    lotlsContainer.append(nud_lotlsSpeed);
+    nud_lotlsSpeed.type = 'number';
+    nud_lotlsSpeed.min = '0';
+    nud_lotlsSpeed.max = '25';
+    nud_lotlsSpeed.value = storageManager.ReadSS('baseLotlSpeed');
+    nud_lotlsSpeed.id = 'lotls_speed'
+    nud_lotlsSpeed.name = 'lotls_speed';
+
+    nud_lotlsSpeed.addEventListener('change', ()=>
+    {
+        storageManager.WriteSS('baseLotlSpeed', nud_lotlsSpeed.value);
+    });
+}
+
 export function drawVariablesPanel()
 {
     let storageManager = new StorageManager();

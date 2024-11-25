@@ -3,8 +3,8 @@ import { Creature } from "../Model/Classes/Creature.js";
 import { Food } from "../Model/Classes/Food.js";
 import { StorageManager } from "../Model/Utilities/StorageManager.js";
 import { creatures, food_list } from "./Stores.js";
-import { feedingFrequency, foodToSpawn, gameOnline } from "./config.js";
-import { drawTimer, drawGameContainer, drawPlaceHolder, drawVariablesPanel } from "../View/ViewDrawing.js";
+import { feedingFrequency, foodToSpawn, gameOnline, baseLotlSpeed } from "./config.js";
+import { drawTimer, drawGameContainer, drawPlaceHolder, drawVariablesPanel, drawVariablesPanel2 } from "../View/ViewDrawing.js";
 
 ////////////////////////////////
 // - - - - - - - - - - CORE
@@ -97,7 +97,8 @@ function setupGame()
     loadVariables();
     drawTimer();
     drawVariablesPanel();
-    drawGameContainer();    
+    drawVariablesPanel2();
+    drawGameContainer();
 }
 
 function loadVariables()
@@ -107,6 +108,7 @@ function loadVariables()
     storageManager.WriteSS('foodToSpawn', foodToSpawn);
     storageManager.WriteSS('feedingFrequency', feedingFrequency);
     storageManager.WriteSS('lastFed', 0);
+    storageManager.WriteSS('baseLotlSpeed', baseLotlSpeed);
 }
 
 function checkFeedingTime(timeControl)
