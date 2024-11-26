@@ -89,7 +89,7 @@ function Init(container, container_data)
 {
     let storageManager = new StorageManager();
     let creaturesToSpawn = storageManager.ReadSS('creaturesToSpawn');
-
+    
     for(let i = 0; i < creaturesToSpawn; i++)
     {
         let creature = new Creature(container, container_data);
@@ -128,10 +128,11 @@ function loadVariables()
     {
         storageManager.WriteSS('baseLotlSpeed', baseLotlSpeed);
     }
-    if(!storageManager.ReadSS('turnLength'))
-    {
-        storageManager.WriteSS('turnLength', turnLength);
-    }
+    // if(!storageManager.ReadSS('turnLength'))
+    // {
+    //     storageManager.WriteSS('turnLength', turnLength);
+    // }
+    storageManager.WriteSS('turnLength', turnLength);
     if(!storageManager.ReadSS('creaturesToSpawn'))
     {
         storageManager.WriteSS('creaturesToSpawn', creaturesToSpawn);

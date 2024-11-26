@@ -8,7 +8,13 @@ export class Creature
     {
         this.age = 0;
         this.container = container_data;
-        this.spawn(container);        
+        this.containerId = container.id;
+        this.spawn(container);
+        this.disorientation = 0;
+        this.energy = 0;
+        this.closestFood = null;
+        this.updatedContainer = false;
+        this.randomTurnLength = 0;
     }
 
     spawn(container)
@@ -27,9 +33,6 @@ export class Creature
         this.body.style.top = `${randomY}px`;
         this.body.style.left = `${randomX}px`;        
         this.body.src = "../Resources/ax.webp";
-        this.disorientation = 0;
-        this.energy = 0;
-        this.closestFood = null;
 
         this.x_pos = randomX;
         this.y_pos = randomY;        
@@ -37,8 +40,7 @@ export class Creature
         this.body.classList += `absolute w-[${creatureSize}px] h-[${creatureSize}px] duration-500 hover:drop-shadow-[0_0_35px_rgba(255,102,102,1)] hover:saturate-150`;
 
         let randomDegrees = Math.floor(Math.random() * 360);
-        this.rotate(randomDegrees);
-        this.angle = randomDegrees;
+        this.rotate(randomDegrees);        
 
         container.appendChild(this.body);
     }
@@ -110,11 +112,24 @@ export class Creature
 
     moveTowardsFood(timeControl)
     {
+        // ----------------------
+        // Variables
+        // ----------------------
         let storageManager = new StorageManager();
         let turnLength = storageManager.ReadSS('turnLength');        
         let baseLotlSpeed = storageManager.ReadSS('baseLotlSpeed');
 
-        if(timeControl.miniTime % (turnLength * 10) == 0 || this.closestFood == null)
+        // ----------------------
+        // Calculating nearest food or either a random point to head to.
+        // ----------------------
+        /*
+        timeControl.miniTime is a counter. Each iteration it gets increased by 1, with the game being set roughly at 1 iteration per 0.1 seconds.
+        This means 10 iterations are performed in 1 second, so multiplying the turnLength by 10 and trying to find a dividend of miniTime that returns 0 
+        actually sets how long it'd take for this to happen.
+
+        Little lotls are gonna move around till their turn has passed or either they reached their random location they were heading to.
+        */
+        if(timeControl.miniTime % ((turnLength + this.randomTurnLength) * 10) == 0 || this.closestFood == null)
         {            
             if(food_list.length > 0)
             {
@@ -123,42 +138,55 @@ export class Creature
             else
             {
                 this.closestFood = this.getRandomPoint();
-            }            
-        }
-        
-        let dx = this.closestFood.x_pos - this.x_pos;
-        let dy = this.closestFood.y_pos - this.y_pos;
-  
-        // Calculate the distance to the food
-        let distance = Math.sqrt(dx * dx + dy * dy);
-        if(distance == 0)
-        {
-            distance = 10; // If by any means distance ends being 0, then it's set to 10.
+            }
+            if(!this.updatedContainer)
+            {
+                this.container = document.getElementById(`${this.containerId}`).getBoundingClientRect();
+                this.updatedContainer = true;
+            }
+
+            this.randomTurnLength = Math.floor(Math.random() * 3); // Setting some random turn length extension between 0 and 2 seconds.
         }
 
-        if(distance <= foodSize)
-        {
-            this.consumeFood(this.closestFood);
-            this.closestFood = null;
-        } 
+        // ----------------------
+        // Calculating the initial arrival point
+        // ----------------------
+        let dx = this.closestFood.x_pos - this.x_pos;
+        let dy = this.closestFood.y_pos - this.y_pos;
+
+        // Calculate disorientation angle deviation
+        let disorientationAngle = ((this.disorientation + 50) / 100) * Math.PI; // Normalize disorientation to 0-PI range
+        let randomAngleDeviation = Math.random() * disorientationAngle - disorientationAngle / 2; // Generate random deviation within disorientation range
+
+        // Calculate target angle considering disorientation
+        let targetAngleRadians = Math.atan2(dy, dx) + randomAngleDeviation;
 
         let movementDistance = baseLotlSpeed; // This can get boosted later.
     
         // Calculate the new position based on the normalized distance
-        this.x_pos += Math.round(movementDistance * dx / distance);
-        this.y_pos += Math.round(movementDistance * dy / distance);
+        this.x_pos += Math.round(movementDistance * Math.cos(targetAngleRadians));
+        this.y_pos += Math.round(movementDistance * Math.sin(targetAngleRadians));
 
+        // Calculate the updated distance to the arrival point
+        dx = this.closestFood.x_pos - this.x_pos;
+        dy = this.closestFood.y_pos - this.y_pos;
+        let distanceToFood = Math.sqrt(dx * dx + dy * dy);
+
+        if(distanceToFood <= foodSize - 20)
+        {
+            this.consumeFood(this.closestFood);
+            this.closestFood = null;
+        }
+
+        // ----------------------
+        // Changing the body's orientation and position
+        // ----------------------
         this.body.style.top = `${this.y_pos}px`;
         this.body.style.left = `${this.x_pos}px`;        
     
         // Calculate the new angle towards the food
-        let targetAngleRadians = Math.atan2(dy, dx);
+        //let targetAngleRadians = Math.atan2(dy, dx);
         let targetAngleDegrees = Math.round((targetAngleRadians * (180 / Math.PI)) / 3);
         this.rotate(targetAngleDegrees);
-    }
-
-    wander()
-    {
-
     }
 }
