@@ -3,6 +3,7 @@ export class TimeControl
     constructor(btn_pause, btn_play, time_counter_display)
     {
         this.time = 0;
+        this.miniTime = 0;
         this.isPaused = false;
         this.btn_pause = btn_pause;
         this.btn_play = btn_play;

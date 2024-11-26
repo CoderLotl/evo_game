@@ -3,7 +3,7 @@ import { Creature } from "../Model/Classes/Creature.js";
 import { Food } from "../Model/Classes/Food.js";
 import { StorageManager } from "../Model/Utilities/StorageManager.js";
 import { creatures, food_list } from "./Stores.js";
-import { feedingFrequency, foodToSpawn, gameOnline, baseLotlSpeed } from "./config.js";
+import { feedingFrequency, foodToSpawn, gameOnline, baseLotlSpeed, turnLength, creaturesToSpawn } from "./config.js";
 import { drawTimer, drawGameContainer, drawPlaceHolder, drawVariablesPanel, drawVariablesPanel2 } from "../View/ViewDrawing.js";
 
 ////////////////////////////////
@@ -18,12 +18,13 @@ document.addEventListener('DOMContentLoaded', ()=>
         let btn_pause = document.getElementById('btn_pause');
         let btn_play = document.getElementById('btn_play');
         let timeDisplay = document.getElementById('time_counter');
-        let game_container = document.getElementById('game_container');    
+        let game_container = document.getElementById('game_container');
+        let game_container_data = game_container.getBoundingClientRect();
     
         let timeControl = new TimeControl(btn_pause, btn_play, timeDisplay);
         timeControl.run();
     
-        Init(game_container);
+        Init(game_container, game_container_data);
     
         gameLoop(timeControl, game_container);
     }
@@ -41,48 +42,58 @@ function gameLoop(timeControl, game_container)
 {
     let storageManager = new StorageManager();    
 
-    let creaturesControl = ()=>
+    // Creatures control function
+    let creaturesControl = (timeControl)=>
     {
         for(let i = 0; i < creatures.length; i++)
         {
-            creatures[i].move();
+            creatures[i].move(timeControl);
         }
     }
 
+    // Food contrl function
     let foodControl = ()=>
     {
         let foodToSpawn = storageManager.ReadSS('foodToSpawn');
         
         for(let i = 0; i < foodToSpawn; i++)
-        {
+        {            
             let newFood = new Food(game_container);
             food_list.push(newFood);
         }
     };
 
+    //--------------------------------------------------
+    // - - - - - - - [ Game Loop ]
+    //--------------------------------------------------
     let loop = setInterval(() =>
     {
         if(timeControl.isPaused != true)
-        {
-            let feedingFrequency_ = storageManager.ReadLS('feedingFrequency');
-            creaturesControl();
+        {            
+            creaturesControl(timeControl);
             
             if(checkFeedingTime(timeControl))
             {
                 foodControl();
                 storageManager.WriteSS('lastFed', timeControl.time);
             }
+
+            timeControl.miniTime += 1;
         }
     }, 100);
 }
 
 // ----------------------------------------------------
 
-function Init(container)
+function Init(container, container_data)
 {
-    for(let i = 0; i < 5; i++)
+    let storageManager = new StorageManager();
+    let creaturesToSpawn = storageManager.ReadSS('creaturesToSpawn');
+
+    for(let i = 0; i < creaturesToSpawn; i++)
     {
-        let creature = new Creature(container);
+        let creature = new Creature(container, container_data);
+        creature.name = `Lotl ${i+1}`;
         creatures.push(creature);
     }
     for(let i = 0; i < 5; i++)
@@ -105,14 +116,32 @@ function loadVariables()
 {
     let storageManager = new StorageManager();
 
-    storageManager.WriteSS('foodToSpawn', foodToSpawn);
-    storageManager.WriteSS('feedingFrequency', feedingFrequency);
+    if(!storageManager.ReadSS('foodToSpawn'))
+    {
+        storageManager.WriteSS('foodToSpawn', foodToSpawn);
+    }
+    if(!storageManager.ReadSS('feedingFrequency'))
+    {
+        storageManager.WriteSS('feedingFrequency', feedingFrequency);
+    }
+    if(!storageManager.ReadSS('baseLotlSpeed'))
+    {
+        storageManager.WriteSS('baseLotlSpeed', baseLotlSpeed);
+    }
+    if(!storageManager.ReadSS('turnLength'))
+    {
+        storageManager.WriteSS('turnLength', turnLength);
+    }
+    if(!storageManager.ReadSS('creaturesToSpawn'))
+    {
+        storageManager.WriteSS('creaturesToSpawn', creaturesToSpawn);
+    }
+    
     storageManager.WriteSS('lastFed', 0);
-    storageManager.WriteSS('baseLotlSpeed', baseLotlSpeed);
 }
 
 function checkFeedingTime(timeControl)
-{
+{    
     let storageManager = new StorageManager();
     let lastFed = parseInt(storageManager.ReadSS('lastFed'));
     let feedingFrequency = parseInt(storageManager.ReadSS('feedingFrequency'));
