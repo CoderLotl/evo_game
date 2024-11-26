@@ -1,6 +1,7 @@
 import { food_list } from '../../Controller/Stores.js';
 import { foodSize, creatureSize } from '../../Controller/config.js';
 import { StorageManager } from '../Utilities/StorageManager.js';
+import { drawCreaturePlate } from '../../View/ViewDrawing.js';
 
 export class Creature
 {
@@ -43,6 +44,11 @@ export class Creature
         this.rotate(randomDegrees);        
 
         container.appendChild(this.body);
+        
+        this.body.addEventListener('click', ()=>
+        {
+            drawCreaturePlate(container, this);
+        });
     }
 
     rotate(value)
@@ -92,6 +98,7 @@ export class Creature
             if(food_list[i].x_pos == nearestFood.x_pos && food_list[i].y_pos == nearestFood.y_pos)
             {
                 food_list[i].consume();
+                break;
             }
         }
     }

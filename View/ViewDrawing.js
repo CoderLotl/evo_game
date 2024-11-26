@@ -162,3 +162,24 @@ export function drawPlaceHolder()
 
     `;
 }
+
+export function drawCreaturePlate(container, creature)
+{
+    if(document.getElementById('creature_plate'))
+    {
+        document.getElementById('creature_plate').remove();
+    }
+
+    let plate = document.createElement('span');
+    container.append(plate);
+    plate.classList = 'min-w-[100px] min-h-[100px] bg-slate-300 absolute rounded-md flex flex-col';
+    plate.id = 'creature_plate';
+
+    let nameSpan = document.createElement('span');
+    plate.append(nameSpan);
+    nameSpan.textContent = 'Name: ';
+    let pName = document.createElement('span');
+    nameSpan.append(pName);
+    pName.classList = 'font-semibold';
+    pName.textContent = creature.name;
+}
