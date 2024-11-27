@@ -1,4 +1,4 @@
-import { food_list } from '../../Controller/Stores.js';
+import { food_list, creatures } from '../../Controller/Stores.js';
 import { foodSize, creatureSize } from '../../Controller/config.js';
 import { StorageManager } from '../Utilities/StorageManager.js';
 import { drawCreaturePlate } from '../../View/ViewDrawing.js';
@@ -8,6 +8,7 @@ export class Creature
     constructor(container, container_data)
     {
         this.age = 0;
+        this.maxAge = this.setMaxAge();
         this.container = container_data;
         this.containerId = container.id;
         this.spawn(container);
@@ -58,67 +59,6 @@ export class Creature
 
     move(timeControl)
     {                
-        this.moveTowardsFood(timeControl);
-    }
-
-    calculateNearestFood()
-    {
-        let nearestFood = false;
-        let nearestDistance = false;
-        if(food_list.length > 0)
-        {
-            for(let i = 0; i < food_list.length; i++)
-            {            
-                let dx = food_list[i].x_pos - this.x_pos;            
-    
-                let dy = food_list[i].y_pos - this.y_pos;            
-    
-                let distance = Math.round(Math.sqrt(dx * dx + dy * dy));
-    
-                if(distance < 0)
-                {
-                    distance = distance * -1;
-                }
-    
-                if(nearestDistance == false || nearestDistance > distance)
-                {
-                    nearestDistance = distance;
-                    nearestFood = {x_pos: food_list[i].x_pos, y_pos: food_list[i].y_pos};
-                }
-            }
-        }
-
-        return nearestFood;
-    }
-
-    async consumeFood(nearestFood)
-    {
-        for(let i = 0; i < food_list.length; i++)
-        {
-            if(food_list[i].x_pos == nearestFood.x_pos && food_list[i].y_pos == nearestFood.y_pos)
-            {
-                food_list[i].consume();
-                break;
-            }
-        }
-    }
-
-    getRandomPoint()
-    {        
-        let rect = this.container;
-        let minX = rect.left;
-        let minY = rect.top;
-        let maxX = minX + rect.width - creatureSize;
-        let maxY = minY + rect.height - creatureSize;   
-
-        let randomX = Math.floor(Math.random() * (maxX - minX) + minX);
-        let randomY = Math.floor(Math.random() * (maxY - minY) + minY);
-
-        return {x_pos: randomX, y_pos: randomY};
-    }
-
-    moveTowardsFood(timeControl)
-    {
         // ----------------------
         // Variables
         // ----------------------
@@ -195,5 +135,102 @@ export class Creature
         //let targetAngleRadians = Math.atan2(dy, dx);
         let targetAngleDegrees = Math.round((targetAngleRadians * (180 / Math.PI)) / 3);
         this.rotate(targetAngleDegrees);
+
+        this.ageTick(timeControl);
+    }
+
+    calculateNearestFood()
+    {
+        let nearestFood = false;
+        let nearestDistance = false;
+        if(food_list.length > 0)
+        {
+            for(let i = 0; i < food_list.length; i++)
+            {            
+                let dx = food_list[i].x_pos - this.x_pos;            
+    
+                let dy = food_list[i].y_pos - this.y_pos;            
+    
+                let distance = Math.round(Math.sqrt(dx * dx + dy * dy));
+    
+                if(distance < 0)
+                {
+                    distance = distance * -1;
+                }
+    
+                if(nearestDistance == false || nearestDistance > distance)
+                {
+                    nearestDistance = distance;
+                    nearestFood = {x_pos: food_list[i].x_pos, y_pos: food_list[i].y_pos};
+                }
+            }
+        }
+
+        return nearestFood;
+    }
+
+    async consumeFood(nearestFood)
+    {
+        for(let i = 0; i < food_list.length; i++)
+        {
+            if(food_list[i].x_pos == nearestFood.x_pos && food_list[i].y_pos == nearestFood.y_pos)
+            {
+                food_list[i].consume();
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    getRandomPoint()
+    {        
+        let rect = this.container;
+        let minX = rect.left;
+        let minY = rect.top;
+        let maxX = minX + rect.width - creatureSize;
+        let maxY = minY + rect.height - creatureSize;   
+
+        let randomX = Math.floor(Math.random() * (maxX - minX) + minX);
+        let randomY = Math.floor(Math.random() * (maxY - minY) + minY);
+
+        return {x_pos: randomX, y_pos: randomY};
+    }
+
+    setMaxAge()
+    {
+        let storageManager = new StorageManager();
+        let maxAge = storageManager.ReadSS('maxAge');
+        let max = 5;
+        let min = -5;
+
+        return (maxAge + Math.floor(Math.random() * (max - min + 1) + min));
+    }
+
+    ageTick(timeControl)
+    {
+        let storageManager = new StorageManager();
+        let agingTime = storageManager.ReadSS('agingTime');
+        if(timeControl.time % agingTime == 0)
+        {
+            this.age += 1;
+        }
+    }
+
+    die()
+    {
+        setTimeout(() =>
+            {
+                this.body.remove();
+    
+                for(let i = 0; i < creatures.length; i++)
+                {
+                    if(creatures[i] == this)
+                    {
+                        creatures.splice(i, 1);
+                        break;
+                    }
+                }
+        }, 250);
     }
 }

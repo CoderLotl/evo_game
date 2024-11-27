@@ -172,7 +172,7 @@ export function drawCreaturePlate(container, creature)
 
     let plate = document.createElement('span');
     container.append(plate);
-    plate.classList = 'min-w-[100px] min-h-[100px] bg-slate-300 absolute rounded-md flex flex-col';
+    plate.classList = 'min-w-[100px] min-h-[100px] bg-slate-300 absolute rounded-md flex flex-col p-2 italic';
     plate.id = 'creature_plate';
 
     let nameSpan = document.createElement('span');
@@ -182,4 +182,12 @@ export function drawCreaturePlate(container, creature)
     nameSpan.append(pName);
     pName.classList = 'font-semibold';
     pName.textContent = creature.name;
+
+    let ageSpan = document.createElement('span');
+    plate.append(ageSpan);
+    ageSpan.textContent = 'Age: ';
+    let pAge = document.createElement('span');
+    ageSpan.append(pAge);
+    pAge.classList = 'font-semibold';
+    pAge.textContent = creature.age;
 }

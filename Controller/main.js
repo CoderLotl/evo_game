@@ -3,7 +3,7 @@ import { Creature } from "../Model/Classes/Creature.js";
 import { Food } from "../Model/Classes/Food.js";
 import { StorageManager } from "../Model/Utilities/StorageManager.js";
 import { creatures, food_list } from "./Stores.js";
-import { feedingFrequency, foodToSpawn, gameOnline, baseLotlSpeed, turnLength, creaturesToSpawn } from "./config.js";
+import { feedingFrequency, foodToSpawn, gameOnline, baseLotlSpeed, turnLength, creaturesToSpawn, agingTime, maxAge } from "./config.js";
 import { drawTimer, drawGameContainer, drawPlaceHolder, drawVariablesPanel, drawVariablesPanel2 } from "../View/ViewDrawing.js";
 
 ////////////////////////////////
@@ -136,6 +136,14 @@ function loadVariables()
     if(!storageManager.ReadSS('creaturesToSpawn'))
     {
         storageManager.WriteSS('creaturesToSpawn', creaturesToSpawn);
+    }
+    if(!storageManager.ReadSS('agingTime'))
+    {
+        storageManager.WriteSS('agingTime', agingTime);
+    }
+    if(!storageManager.ReadSS('maxAge'))
+    {
+        storageManager.WriteSS('maxAge', maxAge);
     }
     
     storageManager.WriteSS('lastFed', 0);

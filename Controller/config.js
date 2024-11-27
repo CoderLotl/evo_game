@@ -6,3 +6,5 @@ export let creaturesToSpawn = 10;
 export let gameOnline = true;
 export let baseLotlSpeed = 5;
 export let turnLength = 1;
+export let agingTime = 10;
+export let maxAge = 10;
