@@ -30,6 +30,36 @@ export function drawTimer()
     time_counter_panel.innerHTML = 'Time: <span id="time_counter" class="text-slate-200"></span>';
 }
 
+export function drawVariablesPanel3()
+{
+    let storageManager = new StorageManager();
+
+    let variablesPanel3 = document.createElement('div');
+    document.getElementById('game_bar').append(variablesPanel3);
+    variablesPanel3.id = 'variables_panel3';
+    variablesPanel3.classList = 'ml-5 mb-2 flex flex-col';
+
+    let specialContainer = document.createElement('div');
+    variablesPanel3.append(specialContainer);
+    specialContainer.classList = 'flex justify-center items-center grow';
+
+    let resetButton = document.createElement('button');
+    specialContainer.append(resetButton);
+    resetButton.textContent = 'RESET';
+    resetButton.classList = 'bg-red-700 hover:bg-red-500 duration-200 p-2 rounded-md self-start mt-3';
+
+    resetButton.addEventListener('click', ()=>
+    {
+        storageManager.RemoveSS('foodToSpawn');
+        storageManager.RemoveSS('feedingFrequency');
+        storageManager.RemoveSS('baseLotlSpeed');
+        storageManager.RemoveSS('creaturesToSpawn');
+        storageManager.RemoveSS('agingTime');
+        storageManager.RemoveSS('maxAge');
+        location.reload();            
+    });
+}
+
 export function drawVariablesPanel2()
 {
     let storageManager = new StorageManager();
@@ -191,5 +221,11 @@ export function drawCreaturePlate(container, creature)
     pAge.classList = 'font-semibold';
     pAge.textContent = creature.age;
 
-    
+    let genderSpan = document.createElement('span');
+    plate.append(genderSpan);
+    genderSpan.textContent = 'Gender: ';
+    let pGender = document.createElement('span');
+    genderSpan.append(pGender);
+    pGender.classList = 'font-semibold';
+    pGender.textContent = creature.gender;
 }

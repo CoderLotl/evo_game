@@ -5,9 +5,10 @@ import { drawCreaturePlate } from '../../View/ViewDrawing.js';
 
 export class Creature
 {
-    constructor(container, container_data)
+    constructor(container, container_data, number)
     {
         this.age = 0;
+        this.name = `Lotl ${number+1}`;
         this.maxAge = this.setMaxAge();
         this.container = container_data;
         this.containerId = container.id;
@@ -17,7 +18,9 @@ export class Creature
         this.closestFood = null;
         this.updatedContainer = false;
         this.randomTurnLength = 0;
-        this.dying = false;        
+        this.dying = false;
+
+        this.setGender();
     }
 
     spawn(container)
@@ -217,7 +220,7 @@ export class Creature
         let storageManager = new StorageManager();
         let agingTime = storageManager.ReadSS('agingTime');
         
-        if(timeControl.miniTime != 0 && timeControl.miniTime % (agingTime * 1) == 0)
+        if(timeControl.miniTime != 0 && timeControl.miniTime % (agingTime * 10) == 0)
         {
             this.age += 1;            
         }
@@ -243,6 +246,19 @@ export class Creature
                         break;
                     }
                 }
-        }, 2000);
+        }, 1000);
+    }
+
+    setGender()
+    {
+        let gender = Math.floor(Math.random() * 2);
+        if(gender == 0)
+        {
+            this.gender = 'male ♂';            
+        }
+        else
+        {
+            this.gender = 'female ♀';            
+        }
     }
 }

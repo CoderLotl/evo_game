@@ -4,7 +4,7 @@ import { Food } from "../Model/Classes/Food.js";
 import { StorageManager } from "../Model/Utilities/StorageManager.js";
 import { creatures, food_list } from "./Stores.js";
 import { feedingFrequency, foodToSpawn, gameOnline, baseLotlSpeed, turnLength, creaturesToSpawn, agingTime, maxAge } from "./config.js";
-import { drawTimer, drawGameContainer, drawPlaceHolder, drawVariablesPanel, drawVariablesPanel2 } from "../View/ViewDrawing.js";
+import { drawTimer, drawGameContainer, drawPlaceHolder, drawVariablesPanel, drawVariablesPanel2, drawVariablesPanel3 } from "../View/ViewDrawing.js";
 
 ////////////////////////////////
 // - - - - - - - - - - CORE
@@ -72,7 +72,7 @@ function gameLoop(timeControl, game_container)
         {            
             creaturesControl(timeControl);
             
-            if(checkFeedingTime(timeControl))
+            if(checkFeedingTime(timeControl) && creatures.length > 0)
             {
                 foodControl();
                 storageManager.WriteSS('lastFed', timeControl.time);
@@ -92,8 +92,7 @@ function Init(container, container_data)
     
     for(let i = 0; i < creaturesToSpawn; i++)
     {
-        let creature = new Creature(container, container_data);
-        creature.name = `Lotl ${i+1}`;
+        let creature = new Creature(container, container_data, i);        
         creatures.push(creature);
     }
     for(let i = 0; i < 5; i++)
@@ -109,6 +108,7 @@ function setupGame()
     drawTimer();
     drawVariablesPanel();
     drawVariablesPanel2();
+    drawVariablesPanel3();
     drawGameContainer();
 }
 

@@ -51,19 +51,31 @@ body
     0% {
         opacity: 1;
         transform: scale(1);
-    }
+        -webkit-transform: scale(1);
+        -moz-transform: scale(1);
+        -ms-transform: scale(1);
+        -o-transform: scale(1);
+}
     50% {
         opacity: 0.5;
         transform: scale(1.2);
-    }
+        -webkit-transform: scale(1.2);
+        -moz-transform: scale(1.2);
+        -ms-transform: scale(1.2);
+        -o-transform: scale(1.2);
+}
     100% {
         opacity: 0;
         transform: scale(2);
-    }
+        -webkit-transform: scale(2);
+        -moz-transform: scale(2);
+        -ms-transform: scale(2);
+        -o-transform: scale(2);
+}
 }
 
 .dying-creature {
-    animation: disintegration 2s ease-out;
+    animation: disintegration 1s ease-out;
     animation-fill-mode: forwards;
-    -webkit-animation: disintegration 2s ease-out;
+    -webkit-animation: disintegration 1s ease-out;
 }
