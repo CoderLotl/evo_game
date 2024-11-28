@@ -190,4 +190,6 @@ export function drawCreaturePlate(container, creature)
     ageSpan.append(pAge);
     pAge.classList = 'font-semibold';
     pAge.textContent = creature.age;
+
+    
 }

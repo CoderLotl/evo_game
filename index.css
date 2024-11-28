@@ -45,3 +45,25 @@ body
     filter: drop-shadow(0 0 20px #2caa05);
     -webkit-filter: drop-shadow(0 0 20px #2caa05);
 }
+
+@keyframes disintegration
+{
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.2);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(2);
+    }
+}
+
+.dying-creature {
+    animation: disintegration 2s ease-out;
+    animation-fill-mode: forwards;
+    -webkit-animation: disintegration 2s ease-out;
+}

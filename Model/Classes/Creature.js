@@ -17,6 +17,7 @@ export class Creature
         this.closestFood = null;
         this.updatedContainer = false;
         this.randomTurnLength = 0;
+        this.dying = false;        
     }
 
     spawn(container)
@@ -58,7 +59,13 @@ export class Creature
     }
 
     move(timeControl)
-    {                
+    {
+        this.moveTick(timeControl);
+        this.ageTick(timeControl);
+    }
+
+    moveTick(timeControl)
+    {
         // ----------------------
         // Variables
         // ----------------------
@@ -119,7 +126,7 @@ export class Creature
         dy = this.closestFood.y_pos - this.y_pos;
         let distanceToFood = Math.sqrt(dx * dx + dy * dy);
 
-        if(distanceToFood <= foodSize - 20)
+        if(distanceToFood <= foodSize - 20 && !this.dying)
         {
             this.consumeFood(this.closestFood);
             this.closestFood = null;
@@ -135,8 +142,6 @@ export class Creature
         //let targetAngleRadians = Math.atan2(dy, dx);
         let targetAngleDegrees = Math.round((targetAngleRadians * (180 / Math.PI)) / 3);
         this.rotate(targetAngleDegrees);
-
-        this.ageTick(timeControl);
     }
 
     calculateNearestFood()
@@ -200,7 +205,7 @@ export class Creature
     setMaxAge()
     {
         let storageManager = new StorageManager();
-        let maxAge = storageManager.ReadSS('maxAge');
+        let maxAge = parseInt(storageManager.ReadSS('maxAge'));
         let max = 5;
         let min = -5;
 
@@ -211,14 +216,21 @@ export class Creature
     {
         let storageManager = new StorageManager();
         let agingTime = storageManager.ReadSS('agingTime');
-        if(timeControl.time % agingTime == 0)
+        
+        if(timeControl.miniTime != 0 && timeControl.miniTime % (agingTime * 1) == 0)
         {
-            this.age += 1;
+            this.age += 1;            
+        }
+        if(this.age >= this.maxAge)
+        {
+            this.die();
         }
     }
 
     die()
     {
+        this.body.classList.add('dying-creature');
+        this.dying = true;
         setTimeout(() =>
             {
                 this.body.remove();
@@ -231,6 +243,6 @@ export class Creature
                         break;
                     }
                 }
-        }, 250);
+        }, 2000);
     }
 }
