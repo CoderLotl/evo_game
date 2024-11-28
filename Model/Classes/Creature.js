@@ -1,7 +1,7 @@
 import { food_list, creatures } from '../../Controller/Stores.js';
-import { foodSize, creatureSize } from '../../Controller/config.js';
+import { foodSize, creatureSize, nutrition } from '../../Controller/config.js';
 import { StorageManager } from '../Utilities/StorageManager.js';
-import { drawCreaturePlate } from '../../View/ViewDrawing.js';
+import { drawCreaturePlate, updateEnergy, updateAge } from '../../View/ViewDrawing.js';
 
 export class Creature
 {
@@ -14,11 +14,13 @@ export class Creature
         this.containerId = container.id;
         this.spawn(container);
         this.disorientation = 0;
-        this.energy = 0;
-        this.closestFood = null;
+        this.energy = 50;
+        this.destinationPoint = null;
+        this.destinationIsFood = false;
         this.updatedContainer = false;
         this.randomTurnLength = 0;
         this.dying = false;
+        this.activePlate = false;
 
         this.setGender();
     }
@@ -53,6 +55,17 @@ export class Creature
         this.body.addEventListener('click', ()=>
         {
             drawCreaturePlate(container, this);
+            for(let i = 0; i < creatures.length; i++)
+            {
+                if(creatures[i] != this)
+                {
+                    creatures[i].activePlate = false;
+                }
+                else
+                {
+                    creatures[i].activePlate = true;
+                }
+            }
         });
     }
 
@@ -65,6 +78,23 @@ export class Creature
     {
         this.moveTick(timeControl);
         this.ageTick(timeControl);
+        this.metabolismTick(timeControl);
+    }
+
+    metabolismTick(timeControl)
+    {
+        let storageManager = new StorageManager();
+        let metabolismRate = storageManager.ReadSS('metabolismRate');        
+
+        if(metabolismRate != 0 && timeControl.miniTime != 0 && timeControl.miniTime % (10 - metabolismRate) == 0)
+        {
+            this.energy -= 1;
+            updateEnergy(this);
+            if(this.energy <= 0)
+            {
+                this.die();
+            }
+        }
     }
 
     moveTick(timeControl)
@@ -86,16 +116,20 @@ export class Creature
 
         Little lotls are gonna move around till their turn has passed or either they reached their random location they were heading to.
         */
-        if(timeControl.miniTime % ((turnLength + this.randomTurnLength) * 10) == 0 || this.closestFood == null)
+        if(timeControl.miniTime % ((turnLength + this.randomTurnLength) * 10) == 0 || this.destinationPoint == null)
         {            
-            if(food_list.length > 0)
+            if(food_list.length > 0 && food_list.some(element => element.exists))
             {
-                this.closestFood = this.calculateNearestFood();
+                this.destinationPoint = this.calculateNearestFood();
+                this.destinationIsFood = true;
             }
             else
             {
-                this.closestFood = this.getRandomPoint();
+                this.destinationPoint = this.getRandomPoint();
+                this.destinationIsFood = false;
             }
+
+            // Updating the knowledge of the game container's size.
             if(!this.updatedContainer)
             {
                 this.container = document.getElementById(`${this.containerId}`).getBoundingClientRect();
@@ -107,9 +141,9 @@ export class Creature
 
         // ----------------------
         // Calculating the initial arrival point
-        // ----------------------
-        let dx = this.closestFood.x_pos - this.x_pos;
-        let dy = this.closestFood.y_pos - this.y_pos;
+        // ----------------------        
+        let dx = this.destinationPoint.x_pos - this.x_pos;
+        let dy = this.destinationPoint.y_pos - this.y_pos;        
 
         // Calculate disorientation angle deviation
         let disorientationAngle = ((this.disorientation + 50) / 100) * Math.PI; // Normalize disorientation to 0-PI range
@@ -122,18 +156,12 @@ export class Creature
     
         // Calculate the new position based on the normalized distance
         this.x_pos += Math.round(movementDistance * Math.cos(targetAngleRadians));
-        this.y_pos += Math.round(movementDistance * Math.sin(targetAngleRadians));
+        this.y_pos += Math.round(movementDistance * Math.sin(targetAngleRadians));        
 
         // Calculate the updated distance to the arrival point
-        dx = this.closestFood.x_pos - this.x_pos;
-        dy = this.closestFood.y_pos - this.y_pos;
-        let distanceToFood = Math.sqrt(dx * dx + dy * dy);
-
-        if(distanceToFood <= foodSize - 20 && !this.dying)
-        {
-            this.consumeFood(this.closestFood);
-            this.closestFood = null;
-        }
+        dx = this.destinationPoint.x_pos - this.x_pos;
+        dy = this.destinationPoint.y_pos - this.y_pos;
+        let distanceToDestination = Math.sqrt(dx * dx + dy * dy);
 
         // ----------------------
         // Changing the body's orientation and position
@@ -145,31 +173,45 @@ export class Creature
         //let targetAngleRadians = Math.atan2(dy, dx);
         let targetAngleDegrees = Math.round((targetAngleRadians * (180 / Math.PI)) / 3);
         this.rotate(targetAngleDegrees);
+
+        // EAAAAAAAAATTT!! ÑAM!!
+        if(distanceToDestination <= foodSize - 20 && !this.dying)
+        {
+            if(this.destinationIsFood)
+            {
+                let foodConsumed = this.consumeFood(this.destinationPoint);
+                if(foodConsumed)
+                {                    
+                    this.energy += nutrition;
+                    if(this.activePlate)
+                    {
+                        updateEnergy(this);
+                    }                    
+                }
+            }
+            this.destinationPoint = null;
+        }        
     }
 
     calculateNearestFood()
     {
-        let nearestFood = false;
+        let nearestFood = null;
         let nearestDistance = false;
         if(food_list.length > 0)
         {
             for(let i = 0; i < food_list.length; i++)
-            {            
-                let dx = food_list[i].x_pos - this.x_pos;            
-    
-                let dy = food_list[i].y_pos - this.y_pos;            
-    
-                let distance = Math.round(Math.sqrt(dx * dx + dy * dy));
-    
-                if(distance < 0)
+            {
+                if(food_list[i].exists)
                 {
-                    distance = distance * -1;
-                }
-    
-                if(nearestDistance == false || nearestDistance > distance)
-                {
-                    nearestDistance = distance;
-                    nearestFood = {x_pos: food_list[i].x_pos, y_pos: food_list[i].y_pos};
+                    let dx = food_list[i].x_pos - this.x_pos;        
+                    let dy = food_list[i].y_pos - this.y_pos;        
+                    let distance = Math.round(Math.sqrt(dx * dx + dy * dy));
+        
+                    if(nearestDistance == false || nearestDistance > distance)
+                    {
+                        nearestDistance = distance;
+                        nearestFood = {x_pos: food_list[i].x_pos, y_pos: food_list[i].y_pos};
+                    }
                 }
             }
         }
@@ -177,17 +219,17 @@ export class Creature
         return nearestFood;
     }
 
-    async consumeFood(nearestFood)
+    consumeFood(nearestFood)
     {
         for(let i = 0; i < food_list.length; i++)
         {
-            if(food_list[i].x_pos == nearestFood.x_pos && food_list[i].y_pos == nearestFood.y_pos)
-            {
+            if(food_list[i].x_pos == nearestFood.x_pos && food_list[i].y_pos == nearestFood.y_pos && food_list[i].exists)
+            {                
                 food_list[i].consume();
                 return true;
             }
         }
-
+        
         return false;
     }
 
@@ -220,13 +262,19 @@ export class Creature
         let storageManager = new StorageManager();
         let agingTime = storageManager.ReadSS('agingTime');
         
-        if(timeControl.miniTime != 0 && timeControl.miniTime % (agingTime * 10) == 0)
+        if(timeControl.miniTime != 0 && timeControl.miniTime % (agingTime * 10) == 0 && !this.dying)
         {
-            this.age += 1;            
-        }
-        if(this.age >= this.maxAge)
-        {
-            this.die();
+            this.age += 1;
+
+            if(this.age >= this.maxAge)
+            {
+                this.die();
+            }
+            
+            if(this.activePlate)
+            {
+                updateAge(this);                
+            }
         }
     }
 

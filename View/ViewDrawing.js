@@ -46,7 +46,7 @@ export function drawVariablesPanel3()
     let resetButton = document.createElement('button');
     specialContainer.append(resetButton);
     resetButton.textContent = 'RESET';
-    resetButton.classList = 'bg-red-700 hover:bg-red-500 duration-200 p-2 rounded-md self-start mt-3';
+    resetButton.classList = 'bg-red-700 hover:bg-red-500 duration-300 p-2 rounded-md self-start mt-3';
 
     resetButton.addEventListener('click', ()=>
     {
@@ -204,6 +204,7 @@ export function drawCreaturePlate(container, creature)
     container.append(plate);
     plate.classList = 'min-w-[100px] min-h-[100px] bg-slate-300 absolute rounded-md flex flex-col p-2 italic';
     plate.id = 'creature_plate';
+    plate.dataset.creature = creature.name;
 
     let nameSpan = document.createElement('span');
     plate.append(nameSpan);
@@ -220,6 +221,7 @@ export function drawCreaturePlate(container, creature)
     ageSpan.append(pAge);
     pAge.classList = 'font-semibold';
     pAge.textContent = creature.age;
+    pAge.id = 'creature-age';
 
     let genderSpan = document.createElement('span');
     plate.append(genderSpan);
@@ -228,4 +230,35 @@ export function drawCreaturePlate(container, creature)
     genderSpan.append(pGender);
     pGender.classList = 'font-semibold';
     pGender.textContent = creature.gender;
+
+    let energySpan = document.createElement('span');
+    plate.append(energySpan);
+    energySpan.textContent = 'Energy: ';
+    let pEnergy = document.createElement('span');
+    energySpan.append(pEnergy);
+    pEnergy.classList = 'font-semibold';
+    pEnergy.textContent = creature.energy;
+    pEnergy.id = 'creature-energy';
+}
+
+export function updateEnergy(creature)
+{
+    let plate = document.querySelectorAll(`[data-creature="${creature.name}"]`);
+    
+    if(plate.length > 0)
+    {        
+        let creature_energy = document.getElementById('creature-energy');
+        creature_energy.textContent = creature.energy;
+    }
+}
+
+export function updateAge(creature)
+{
+    let plate = document.querySelectorAll(`[data-creature="${creature.name}"]`);
+    
+    if(plate.length > 0)
+    {
+        let creature_age = document.getElementById('creature-age');
+        creature_age.textContent = creature.age;
+    }
 }

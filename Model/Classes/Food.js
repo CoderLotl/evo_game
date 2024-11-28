@@ -6,6 +6,7 @@ export class Food
     constructor(container)
     {
         this.spawn(container);
+        this.exists = true;
     }
 
     spawn(container)
@@ -40,6 +41,7 @@ export class Food
         this.body.classList += 'transition-all ease-in-out';
         this.body.style.width = '0px';
         this.body.style.height = '0px';
+        this.exists = false;
         
         setTimeout(() =>
         {
