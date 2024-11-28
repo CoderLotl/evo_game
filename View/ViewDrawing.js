@@ -241,6 +241,16 @@ export function drawCreaturePlate(container, creature)
     pEnergy.id = 'creature-energy';
 }
 
+export function removeCreaturePlate(creature)
+{
+    let plate = document.querySelectorAll(`[data-creature="${creature.name}"]`);
+
+    if(plate.length > 0)
+    {
+        plate[0].remove();
+    }
+}
+
 export function updateEnergy(creature)
 {
     let plate = document.querySelectorAll(`[data-creature="${creature.name}"]`);

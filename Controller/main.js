@@ -27,6 +27,18 @@ document.addEventListener('DOMContentLoaded', ()=>
         Init(game_container, game_container_data);
     
         gameLoop(timeControl, game_container);
+
+        game_container.addEventListener('click', (event)=>
+        {
+            if(event.target == game_container)
+            {
+                let plate = document.getElementById('creature_plate');
+                if(plate)
+                {
+                    plate.remove();
+                }
+            }
+        });
     }
     else
     {
@@ -91,11 +103,14 @@ function Init(container, container_data)
     let creaturesToSpawn = storageManager.ReadSS('creaturesToSpawn');
     let foodToSpawn = storageManager.ReadSS('foodToSpawn');
     
+    // Spawn creatures
     for(let i = 0; i < creaturesToSpawn; i++)
     {
         let creature = new Creature(container, container_data, i);        
         creatures.push(creature);
     }
+
+    // Spawn food
     for(let i = 0; i < foodToSpawn; i++)
     {
         let food = new Food(container);

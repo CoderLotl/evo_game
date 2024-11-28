@@ -1,7 +1,7 @@
 import { food_list, creatures } from '../../Controller/Stores.js';
 import { foodSize, creatureSize, nutrition } from '../../Controller/config.js';
 import { StorageManager } from '../Utilities/StorageManager.js';
-import { drawCreaturePlate, updateEnergy, updateAge } from '../../View/ViewDrawing.js';
+import { drawCreaturePlate, updateEnergy, updateAge, removeCreaturePlate } from '../../View/ViewDrawing.js';
 
 export class Creature
 {
@@ -282,6 +282,7 @@ export class Creature
     {
         this.body.classList.add('dying-creature');
         this.dying = true;
+        removeCreaturePlate(this);
         setTimeout(() =>
             {
                 this.body.remove();
@@ -289,7 +290,7 @@ export class Creature
                 for(let i = 0; i < creatures.length; i++)
                 {
                     if(creatures[i] == this)
-                    {
+                    {                        
                         creatures.splice(i, 1);
                         break;
                     }
