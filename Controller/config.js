@@ -1,12 +1,15 @@
 export let foodToSpawn = 5;
 export let feedingFrequency = 5;
 export let foodSize = 50;
+export let nutrition = 30;
+
 export let creatureSize = 50;
-export let creaturesToSpawn = 5;
-export let gameOnline = true;
+export let creaturesToSpawn = 3;
 export let baseLotlSpeed = 5;
-export let turnLength = 1;
 export let agingTime = 10;
 export let maxAge = 10;
-export let nutrition = 30;
 export let metabolismRate = 2;
+export let minimumMatingAge = 5;
+
+export let gameOnline = true;
+export let turnLength = 1;

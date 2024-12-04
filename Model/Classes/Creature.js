@@ -1,18 +1,19 @@
 import { food_list, creatures } from '../../Controller/Stores.js';
-import { foodSize, creatureSize, nutrition } from '../../Controller/config.js';
+import { foodSize, creatureSize, nutrition, minimumMatingAge } from '../../Controller/config.js';
 import { StorageManager } from '../Utilities/StorageManager.js';
 import { drawCreaturePlate, updateEnergy, updateAge, removeCreaturePlate } from '../../View/ViewDrawing.js';
 
 export class Creature
 {
-    constructor(container, container_data, number)
+    constructor(container, container_data, number, randomSpawn = true, position = false)
     {
         this.age = 0;
+        this.lotlNumber = number+1;
         this.name = `Lotl ${number+1}`;
         this.maxAge = this.setMaxAge();
         this.container = container_data;
         this.containerId = container.id;
-        this.spawn(container);
+        this.spawn(container, randomSpawn, position);
         this.disorientation = 0;
         this.energy = 50;
         this.destinationPoint = null;
@@ -21,31 +22,46 @@ export class Creature
         this.randomTurnLength = 0;
         this.dying = false;
         this.activePlate = false;
+        this.mating = false;
+        this.mateName = false;
+        this.matingTimer = 0;
+        this.matingCooldown = 0;
 
         this.setGender();
     }
 
-    spawn(container)
+    spawn(container, randomSpawn, position = false)
     {
         this.body = document.createElement('img');
 
-        let rect = this.container;
-        let minX = rect.left;
-        let minY = rect.top;
-        let maxX = minX + rect.width - creatureSize;
-        let maxY = minY + rect.height - creatureSize;        
+        let pointX;
+        let pointY;
 
-        const randomX = Math.floor(Math.random() * (maxX - minX) + minX);
-        const randomY = Math.floor(Math.random() * (maxY - minY) + minY);
+        if(randomSpawn)
+        {
+            let rect = this.container;
+            let minX = rect.left;
+            let minY = rect.top;
+            let maxX = minX + rect.width - creatureSize;
+            let maxY = minY + rect.height - creatureSize;
+            pointX = Math.floor(Math.random() * (maxX - minX) + minX);
+            pointY = Math.floor(Math.random() * (maxY - minY) + minY);
+        }
+        else
+        {
+            pointX = position.x_pos;
+            pointY = position.y_pos;
+        }
         
-        this.body.style.top = `${randomY}px`;
-        this.body.style.left = `${randomX}px`;        
+        this.body.style.top = `${pointY}px`;
+        this.body.style.left = `${pointX}px`;        
         this.body.src = "../Resources/ax.webp";
 
-        this.x_pos = randomX;
-        this.y_pos = randomY;        
+        this.x_pos = pointX;
+        this.y_pos = pointY;        
 
         this.body.classList += `absolute w-[${creatureSize}px] h-[${creatureSize}px] duration-500 hover:drop-shadow-[0_0_35px_rgba(255,102,102,1)] hover:saturate-150`;
+        this.body.title = this.name;
 
         let randomDegrees = Math.floor(Math.random() * 360);
         this.rotate(randomDegrees);        
@@ -79,6 +95,123 @@ export class Creature
         this.moveTick(timeControl);
         this.ageTick(timeControl);
         this.metabolismTick(timeControl);
+    }
+
+    seekForMate()
+    {        
+        let nearestDistance = false;
+        if(creatures.length > 0 && creatures.some(element => element.genderValue == 0 && !element.mating && !element.dying && element.age >= minimumMatingAge && element.matingCooldown == 0))
+        {
+            for(let i = 0; i < creatures.length; i++)
+            {
+                if(creatures[i].genderValue == 0 && !creatures[i].mating && !creatures[i].dying && creatures[i].age >= minimumMatingAge && creatures[i].matingCooldown == 0)
+                {
+                    let dx = creatures[i].x_pos - this.x_pos;
+                    let dy = creatures[i].y_pos - this.y_pos;        
+                    let distance = Math.round(Math.sqrt(dx * dx + dy * dy));                    
+        
+                    if(nearestDistance == false || nearestDistance > distance)
+                    {
+                        nearestDistance = distance;
+                        
+                        this.destinationPoint = {x_pos: creatures[i].x_pos, y_pos: creatures[i].y_pos};                        
+                        this.destinationIsFood = false;                        
+                        this.mating = true;
+                        this.mateName = creatures[i].name;
+                        
+                        creatures[i].destinationPoint = {x_pos: this.x_pos, y_pos: this.y_pos};
+                        this.destinationIsFood = false;
+                        creatures[i].mating = true;
+                        creatures[i].mateName = this.name;
+                        creatures[i].matingTimer = 30;
+                        break;
+                    }
+                }
+            }
+        }        
+    }
+
+    updateMatePosition()
+    {
+        if(creatures.length > 0)
+        {
+            let mateFound = false;
+            for(let i = 0; i < creatures.length; i++)
+            {
+                if(creatures[i].name == this.mateName)
+                {                    
+                    if(creatures[i].dying)
+                    {
+                        this.destinationPoint = null;
+                        this.mating = false;
+                        this.mateName = false;
+                    }
+                    else
+                    {
+                        mateFound = true;
+                        this.destinationPoint = {x_pos: creatures[i].x_pos, y_pos: creatures[i].y_pos};
+                    }
+                    break;
+                }
+            }
+
+            if(!mateFound)
+            {
+                this.mating = false;
+                this.mateName = false;
+                this.destinationPoint = null;
+            }
+        }
+        else
+        {
+            this.mating = false;
+            this.mateName = false;
+            this.destinationPoint = null;
+        }
+    }
+
+    mate()
+    {
+        for(let i = 0; i < creatures.length; i++)
+        {
+            if(creatures[i].name == this.mateName)
+            {
+                creatures[i].matingTimer--;
+                if(creatures[i].matingTimer == 0)
+                {
+                    this.mating = false;
+                    this.mateName = false;
+                    this.destinationPoint = null;
+                    
+                    creatures[i].mating = false;
+                    creatures[i].mateName = false;
+                    creatures[i].destinationPoint = null;
+                    creatures[i].matingCooldown = 1;
+
+                    let game_container = document.getElementById('game_container');
+                    let game_container_data = game_container.getBoundingClientRect();
+                    let newLotlNumber = this.findLastLotl();
+
+                    let newLotl = new Creature(game_container, game_container_data, newLotlNumber, false, {x_pos: creatures[i].x_pos, y_pos: creatures[i].y_pos});
+                    creatures.push(newLotl);
+                    break;
+                }
+            }
+        }
+    }
+
+    findLastLotl()
+    {
+        let lastLotl = false;
+        for(let i = 0; i < creatures.length; i++)
+        {
+            if(!lastLotl || creatures[i].lotlNumber > lastLotl)
+            {
+                lastLotl = creatures[i].lotlNumber;
+            }
+        }
+
+        return lastLotl;
     }
 
     metabolismTick(timeControl)
@@ -116,8 +249,19 @@ export class Creature
 
         Little lotls are gonna move around till their turn has passed or either they reached their random location they were heading to.
         */
-        if(timeControl.miniTime % ((turnLength + this.randomTurnLength) * 10) == 0 || this.destinationPoint == null)
-        {            
+        
+        if(!this.mating && this.genderValue == 1 && this.age >= 5)
+        {
+            this.seekForMate();
+        }
+        else if(this.mating)
+        {
+            this.updateMatePosition();
+        }
+
+        if(!this.mating && (timeControl.miniTime % ((turnLength + this.randomTurnLength) * 10) == 0 || this.destinationPoint == null))
+        {
+            
             if(food_list.length > 0 && food_list.some(element => element.exists))
             {
                 this.destinationPoint = this.calculateNearestFood();
@@ -174,6 +318,10 @@ export class Creature
         let targetAngleDegrees = Math.round((targetAngleRadians * (180 / Math.PI)) / 3);
         this.rotate(targetAngleDegrees);
 
+        // ----------------------
+        // ARRIVAL
+        // ----------------------
+
         // EAAAAAAAAATTT!! ÑAM!!
         if(distanceToDestination <= foodSize - 20 && !this.dying)
         {
@@ -188,6 +336,10 @@ export class Creature
                         updateEnergy(this);
                     }                    
                 }
+            }
+            else if(this.mating && this.genderValue == 1)
+            {
+                this.mate();
             }
             this.destinationPoint = null;
         }        
@@ -241,10 +393,10 @@ export class Creature
         let maxX = minX + rect.width - creatureSize;
         let maxY = minY + rect.height - creatureSize;   
 
-        let randomX = Math.floor(Math.random() * (maxX - minX) + minX);
-        let randomY = Math.floor(Math.random() * (maxY - minY) + minY);
+        let pointX = Math.floor(Math.random() * (maxX - minX) + minX);
+        let pointY = Math.floor(Math.random() * (maxY - minY) + minY);
 
-        return {x_pos: randomX, y_pos: randomY};
+        return {x_pos: pointX, y_pos: pointY};
     }
 
     setMaxAge()
@@ -280,6 +432,19 @@ export class Creature
 
     die()
     {
+        let storageManager = new StorageManager();
+        let males = storageManager.ReadSS('males');
+        let females = storageManager.ReadSS('females');
+
+        if(this.genderValue == 0)
+        {
+            storageManager.WriteSS('females', females-1);
+        }
+        else
+        {
+            storageManager.WriteSS('males', males-1);
+        }
+
         this.body.classList.add('dying-creature');
         this.dying = true;
         removeCreaturePlate(this);
@@ -291,7 +456,7 @@ export class Creature
                 {
                     if(creatures[i] == this)
                     {                        
-                        creatures.splice(i, 1);
+                        creatures.splice(i, 1);                        
                         break;
                     }
                 }
@@ -300,14 +465,41 @@ export class Creature
 
     setGender()
     {
-        let gender = Math.floor(Math.random() * 2);
-        if(gender == 0)
+        let storageManager = new StorageManager();
+        let males = storageManager.ReadSS('males');
+        let females = storageManager.ReadSS('females');
+
+        if(females == 0 || males == 0)
         {
-            this.gender = 'male ♂';            
+            if(females == 0)
+            {
+                storageManager.WriteSS('females', females+1);
+                this.gender = 'female ♀';            
+                this.genderValue = 0;
+            }
+            else
+            {
+                storageManager.WriteSS('males', males+1);
+                this.gender = 'male ♂';
+                this.genderValue = 1;
+            }
         }
         else
         {
-            this.gender = 'female ♀';            
+            let gender = Math.floor(Math.random() * 2);
+            if(gender == 0)
+            {
+                storageManager.WriteSS('males', males+1);
+                this.gender = 'male ♂';
+                this.genderValue = 1;
+            }
+            else
+            {
+                storageManager.WriteSS('females', females+1);
+                this.gender = 'female ♀';
+                this.genderValue = 0;                
+            }
+            this.mating = false;
         }
     }
 }

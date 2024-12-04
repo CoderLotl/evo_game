@@ -161,6 +161,9 @@ function loadVariables()
     storageManager.WriteSS('metabolismRate', metabolismRate);    
     storageManager.WriteSS('turnLength', turnLength);
     storageManager.WriteSS('lastFed', 0);
+
+    storageManager.WriteSS('females', 0);
+    storageManager.WriteSS('males', 0);
 }
 
 function checkFeedingTime(timeControl)

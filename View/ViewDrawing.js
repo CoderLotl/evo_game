@@ -1,5 +1,6 @@
 import { foodToSpawn } from "../Controller/config.js";
 import { StorageManager } from "../Model/Utilities/StorageManager.js";
+import { creatures } from "../Controller/Stores.js";
 
 export function drawTimer()
 {
@@ -239,6 +240,54 @@ export function drawCreaturePlate(container, creature)
     pEnergy.classList = 'font-semibold';
     pEnergy.textContent = creature.energy;
     pEnergy.id = 'creature-energy';
+
+    let matingSpan = document.createElement('span');
+    plate.append(matingSpan);
+    matingSpan.textContent = 'Mating: ';
+    let pMating = document.createElement('span');
+    matingSpan.append(pMating);
+    pMating.classList = 'font-semibold';
+    pMating.textContent = creature.mating? 'Yes' : 'No';
+    pMating.id = 'creature-mating';
+
+    let mateSpan = document.createElement('span');
+    plate.append(mateSpan);
+    mateSpan.textContent = 'Mate: ';
+    let pMate = document.createElement('span');
+    mateSpan.append(pMate);
+    pMate.classList = 'font-semibold';
+    pMate.textContent = creature.mateName ? creature.mateName : 'None';
+    pMate.id = 'creature-mate';
+
+    pMate.addEventListener('mouseover', ()=>
+    {
+        if(creature.mateName)
+        {
+            for(let i = 0; i < creatures.length; i++)
+            {
+                if(creatures[i].name == creature.mateName)
+                {
+                    creatures[i].body.classList.add('drop-shadow-[0_0_35px_rgba(100,235,52,1)]');
+                    break;
+                }
+            }
+        }
+    });
+
+    pMate.addEventListener('mouseout', ()=>
+    {
+        if(creature.mateName)
+        {
+            for(let i = 0; i < creatures.length; i++)
+            {
+                if(creatures[i].name == creature.mateName)
+                {
+                    creatures[i].body.classList.remove('drop-shadow-[0_0_35px_rgba(100,235,52,1)]');
+                    break;
+                }
+            }
+        }
+    });
 }
 
 export function removeCreaturePlate(creature)
