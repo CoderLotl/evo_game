@@ -351,7 +351,7 @@ export class Creature
         // ----------------------
 
         if(!this.dying)
-        {
+        {            
             if(this.destinationIsFood && distanceToDestination <= (Math.floor(foodSize / 2) + Math.floor(this.size / 5)))
             {
                 let foodConsumed = this.consumeFood(this.destinationPoint);
@@ -368,8 +368,9 @@ export class Creature
                 }
                 this.destinationPoint = null;
             }
-            else if(distanceToDestination <= 5)
+            else if(distanceToDestination <= 15)
             {
+                console.log('reached destination');
                 this.destinationPoint = null;
             }
             else if(this.mating && this.genderValue == 1 && distanceToDestination <= 30)

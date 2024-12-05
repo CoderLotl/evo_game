@@ -4,7 +4,7 @@ export let foodSize = 50;
 export let nutrition = 30;
 
 export let creatureSize = 50;
-export let creaturesToSpawn = 5;
+export let creaturesToSpawn = 1;
 export let baseLotlSpeed = 5;
 export let agingTime = 10;
 export let maxAge = 10;
