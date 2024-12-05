@@ -1,7 +1,7 @@
 import { food_list, creatures } from '../../Controller/Stores.js';
 import { foodSize, creatureSize, nutrition, minimumMatingAge } from '../../Controller/config.js';
 import { StorageManager } from '../Utilities/StorageManager.js';
-import { drawCreaturePlate, updateEnergy, updateAge, removeCreaturePlate } from '../../View/ViewDrawing.js';
+import { drawCreaturePlate, updateEnergy, updateAge, removeCreaturePlate, updateMating, updateMatingCooldown } from '../../View/ViewDrawing.js';
 
 export class Creature
 {
@@ -278,13 +278,18 @@ export class Creature
         Little lotls are gonna move around till their turn has passed or either they reached their random location they were heading to.
         */
         
-        if(!this.mating && this.genderValue == 1 && this.age >= 5)
+        if(!this.mating && this.genderValue == 1 && this.age >= minimumMatingAge)
         {
             this.seekForMate();
         }
         else if(this.mating)
         {
             this.updateMatePosition();
+        }
+        updateMating(this);
+        if(this.genderValue == 0)
+        {
+            updateMatingCooldown(this);
         }
 
         if(!this.mating && (timeControl.miniTime % ((turnLength + this.randomTurnLength) * 10) == 0 || this.destinationPoint == null))
@@ -351,7 +356,7 @@ export class Creature
         // ----------------------
 
         if(!this.dying)
-        {            
+        {
             if(this.destinationIsFood && distanceToDestination <= (Math.floor(foodSize / 2) + Math.floor(this.size / 5)))
             {
                 let foodConsumed = this.consumeFood(this.destinationPoint);
@@ -368,14 +373,13 @@ export class Creature
                 }
                 this.destinationPoint = null;
             }
-            else if(distanceToDestination <= 15)
-            {
-                console.log('reached destination');
+            if(distanceToDestination <= 15 && !this.mating && !this.destinationIsFood)
+            {                
                 this.destinationPoint = null;
             }
-            else if(this.mating && this.genderValue == 1 && distanceToDestination <= 30)
+            if(this.mating && this.genderValue == 1 && distanceToDestination <= 15)
             {
-                this.mate();
+                this.mate();                
                 this.destinationPoint = null;
             }            
         }        

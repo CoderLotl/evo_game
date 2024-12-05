@@ -255,39 +255,54 @@ export function drawCreaturePlate(container, creature)
     mateSpan.textContent = 'Mate: ';
     let pMate = document.createElement('span');
     mateSpan.append(pMate);
-    pMate.classList = 'font-semibold';
+    pMate.classList = 'font-semibold cursor-pointer';
     pMate.textContent = creature.mateName ? creature.mateName : 'None';
     pMate.id = 'creature-mate';
 
-    pMate.addEventListener('mouseover', ()=>
+    if(creature.genderValue == 0)
     {
-        if(creature.mateName)
-        {
-            for(let i = 0; i < creatures.length; i++)
-            {
-                if(creatures[i].name == creature.mateName)
-                {
-                    creatures[i].body.classList.add('drop-shadow-[0_0_35px_rgba(100,235,52,1)]');
-                    break;
-                }
-            }
-        }
-    });
+        let mateCooldownSpan = document.createElement('span');
+        plate.append(mateCooldownSpan);
+        mateCooldownSpan.textContent = 'Mating Cooldown: ';
+        let pMateCooldown = document.createElement('span');
+        mateCooldownSpan.append(pMateCooldown);
+        pMateCooldown.classList = 'font-semibold';
+        pMateCooldown.textContent = creature.matingCooldown;
+        pMateCooldown.id = 'mating-cooldown';
+    }
 
-    pMate.addEventListener('mouseout', ()=>
+    if(creature.mateName)
     {
-        if(creature.mateName)
+        pMate.addEventListener('mouseover', ()=>
         {
-            for(let i = 0; i < creatures.length; i++)
+            if(creature.mateName)
             {
-                if(creatures[i].name == creature.mateName)
+                for(let i = 0; i < creatures.length; i++)
                 {
-                    creatures[i].body.classList.remove('drop-shadow-[0_0_35px_rgba(100,235,52,1)]');
-                    break;
+                    if(creatures[i].name == creature.mateName)
+                    {
+                        creatures[i].body.classList.add('drop-shadow-[0_0_35px_rgba(100,235,52,1)]');
+                        break;
+                    }
                 }
             }
-        }
-    });
+        });
+    
+        pMate.addEventListener('mouseout', ()=>
+        {
+            if(creature.mateName)
+            {
+                for(let i = 0; i < creatures.length; i++)
+                {
+                    if(creatures[i].name == creature.mateName)
+                    {
+                        creatures[i].body.classList.remove('drop-shadow-[0_0_35px_rgba(100,235,52,1)]');
+                        break;
+                    }
+                }
+            }
+        });
+    }
 }
 
 export function removeCreaturePlate(creature)
@@ -319,5 +334,73 @@ export function updateAge(creature)
     {
         let creature_age = document.getElementById('creature-age');
         creature_age.textContent = creature.age;
+    }
+}
+
+export function updateMatingCooldown(creature)
+{
+    let plate = document.querySelectorAll(`[data-creature="${creature.name}"]`);
+
+    if(plate.length > 0)
+    {
+        let creature_mating_cooldown = document.getElementById('mating-cooldown');
+        creature_mating_cooldown.textContent = creature.matingCooldown;
+    }
+}
+
+export function updateMating(creature)
+{
+    let plate = document.querySelectorAll(`[data-creature="${creature.name}"]`);
+
+    if(plate.length > 0)
+    {
+        let creature_mating = document.getElementById('creature-mating');
+        creature_mating.textContent = creature.mating? 'Yes' : 'No';
+
+        let creature_mate = document.getElementById('creature-mate');
+        creature_mate.textContent = creature.mateName ? creature.mateName : 'None';
+
+        let mouseOver = ()=>
+        {
+            if(creature.mateName)
+            {
+                for(let i = 0; i < creatures.length; i++)
+                {
+                    if(creatures[i].name == creature.mateName)
+                    {
+                        creatures[i].body.classList.add('drop-shadow-[0_0_35px_rgba(100,235,52,1)]');
+                        break;
+                    }
+                }
+            }
+        }
+
+        let mouseOut = ()=>
+        {
+            if(creature.mateName)
+            {
+                for(let i = 0; i < creatures.length; i++)
+                {
+                    if(creatures[i].name == creature.mateName)
+                    {
+                        creatures[i].body.classList.remove('drop-shadow-[0_0_35px_rgba(100,235,52,1)]');
+                        break;
+                    }
+                }
+            }
+        }
+
+        if(creature.mateName)
+        {
+            creature_mate.addEventListener('mouseover', mouseOver);
+        
+            creature_mate.addEventListener('mouseout', mouseOut);
+        }
+        else
+        {
+            creature_mate.removeEventListener('mouseover', mouseOver);
+
+            creature_mate.removeEventListener('mouseout', mouseOut);
+        }
     }
 }
