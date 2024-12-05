@@ -212,7 +212,7 @@ export function drawCreaturePlate(container, creature)
     nameSpan.textContent = 'Name: ';
     let pName = document.createElement('span');
     nameSpan.append(pName);
-    pName.classList = 'font-semibold';
+    pName.classList = 'font-semibold cursor-pointer';
     pName.textContent = creature.name;
 
     let ageSpan = document.createElement('span');
@@ -270,6 +270,30 @@ export function drawCreaturePlate(container, creature)
         pMateCooldown.textContent = creature.matingCooldown;
         pMateCooldown.id = 'mating-cooldown';
     }
+
+    pName.addEventListener('mouseover', ()=>
+    {
+        for(let i = 0; i < creatures.length; i++)
+        {
+            if(creatures[i].name == creature.name)
+            {
+                creatures[i].body.classList.add('drop-shadow-[0_0_35px_rgba(255,102,102,1)]');
+                break;
+            }
+        }
+    });
+
+    pName.addEventListener('mouseout', ()=>
+    {
+        for(let i = 0; i < creatures.length; i++)
+        {
+            if(creatures[i].name == creature.name)
+            {
+                creatures[i].body.classList.remove('drop-shadow-[0_0_35px_rgba(255,102,102,1)]');
+                break;
+            }
+        }
+    });
 
     if(creature.mateName)
     {
