@@ -26,8 +26,8 @@ export class Food
         this.y_pos = randomY;
 
         this.body.style.position = 'absolute';
-        this.body.style.top = `${randomY}px`;
-        this.body.style.left = `${randomX}px`;
+        this.body.style.top = `${randomY - Math.floor(foodSize / 2)}px`;
+        this.body.style.left = `${randomX - Math.floor(foodSize / 2)}px`;
         this.body.src = "../Resources/plant.png";
         this.body.style.width = `${foodSize}px`;
         this.body.style.height = `${foodSize}px`;

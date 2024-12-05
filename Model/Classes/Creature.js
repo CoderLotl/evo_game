@@ -8,6 +8,7 @@ export class Creature
     constructor(container, container_data, number, randomSpawn = true, position = false)
     {
         this.age = 0;
+        this.size = creatureSize;
         this.lotlNumber = number+1;
         this.name = `Lotl ${number+1}`;
         this.maxAge = this.setMaxAge();
@@ -53,14 +54,16 @@ export class Creature
             pointY = position.y_pos;
         }
         
-        this.body.style.top = `${pointY}px`;
-        this.body.style.left = `${pointX}px`;        
-        this.body.src = "../Resources/ax.webp";
+        this.body.style.top = `${pointY - Math.floor(this.size / 2)}px`;
+        this.body.style.left = `${pointX - Math.floor(this.size / 2)}px`;        
+        this.body.src = "../Resources/ax2.webp";
 
         this.x_pos = pointX;
         this.y_pos = pointY;        
 
-        this.body.classList += `absolute w-[${creatureSize}px] h-[${creatureSize}px] duration-500 hover:drop-shadow-[0_0_35px_rgba(255,102,102,1)] hover:saturate-150`;
+        this.body.classList += `absolute duration-500 hover:drop-shadow-[0_0_35px_rgba(255,102,102,1)] hover:saturate-150`;
+        this.body.width = this.size;
+        this.body.height = this.size;
         this.body.title = this.name;
 
         let randomDegrees = Math.floor(Math.random() * 360);
@@ -87,7 +90,21 @@ export class Creature
 
     rotate(value)
     {
-        this.body.style.transform = `rotate(${value}deg)`;
+        if(this.destinationPoint)
+        {
+            // Determine if the destination is to the left or right
+            if (this.destinationPoint.x_pos < this.x_pos) {
+                // Flip horizontally if the destination is to the left
+                this.body.style.transform = `rotate(${value}deg) scaleX(-1)`;
+            } else {
+                // Default rotation if the destination is to the right
+                this.body.style.transform = `rotate(${value}deg) scaleX(1)`;
+            }
+        }
+        else
+        {
+            this.body.style.transform = `rotate(${value}deg)`;
+        }
     }
 
     move(timeControl)
@@ -186,7 +203,7 @@ export class Creature
                     creatures[i].mating = false;
                     creatures[i].mateName = false;
                     creatures[i].destinationPoint = null;
-                    creatures[i].matingCooldown = 1;
+                    creatures[i].matingCooldown = 100;
 
                     let game_container = document.getElementById('game_container');
                     let game_container_data = game_container.getBoundingClientRect();
@@ -217,11 +234,22 @@ export class Creature
     metabolismTick(timeControl)
     {
         let storageManager = new StorageManager();
-        let metabolismRate = storageManager.ReadSS('metabolismRate');        
+        let metabolismRate = storageManager.ReadSS('metabolismRate');
+
+        if(this.matingCooldown > 0)
+        {
+            this.matingCooldown--;
+        }
 
         if(metabolismRate != 0 && timeControl.miniTime != 0 && timeControl.miniTime % (10 - metabolismRate) == 0)
         {
             this.energy -= 1;
+            if(this.energy % 2 == 0 && this.size > 4)
+            {
+                this.size--;
+                this.body.height = this.size;
+                this.body.width = this.size;
+            }
             updateEnergy(this);
             if(this.energy <= 0)
             {
@@ -310,38 +338,45 @@ export class Creature
         // ----------------------
         // Changing the body's orientation and position
         // ----------------------
-        this.body.style.top = `${this.y_pos}px`;
-        this.body.style.left = `${this.x_pos}px`;        
+        this.body.style.top = `${this.y_pos - Math.floor(this.size / 2)}px`;
+        this.body.style.left = `${this.x_pos - Math.floor(this.size / 2)}px`;        
     
         // Calculate the new angle towards the food
         //let targetAngleRadians = Math.atan2(dy, dx);
-        let targetAngleDegrees = Math.round((targetAngleRadians * (180 / Math.PI)) / 3);
+        let targetAngleDegrees = Math.round((targetAngleRadians * (180 / Math.PI)) / 5);
         this.rotate(targetAngleDegrees);
 
         // ----------------------
         // ARRIVAL
         // ----------------------
 
-        // EAAAAAAAAATTT!! ÑAM!!
-        if(distanceToDestination <= foodSize - 20 && !this.dying)
+        if(!this.dying)
         {
-            if(this.destinationIsFood)
+            if(this.destinationIsFood && distanceToDestination <= (Math.floor(foodSize / 2) + Math.floor(this.size / 5)))
             {
                 let foodConsumed = this.consumeFood(this.destinationPoint);
                 if(foodConsumed)
                 {                    
                     this.energy += nutrition;
+                    this.size+= Math.floor(nutrition / 2);
+                    this.body.height = this.size;
+                    this.body.width = this.size;
                     if(this.activePlate)
                     {
                         updateEnergy(this);
                     }                    
                 }
+                this.destinationPoint = null;
             }
-            else if(this.mating && this.genderValue == 1)
+            else if(distanceToDestination <= 5)
+            {
+                this.destinationPoint = null;
+            }
+            else if(this.mating && this.genderValue == 1 && distanceToDestination <= 30)
             {
                 this.mate();
-            }
-            this.destinationPoint = null;
+                this.destinationPoint = null;
+            }            
         }        
     }
 
@@ -355,8 +390,16 @@ export class Creature
             {
                 if(food_list[i].exists)
                 {
-                    let dx = food_list[i].x_pos - this.x_pos;        
-                    let dy = food_list[i].y_pos - this.y_pos;        
+                    // Calculate centers of both creature and food
+                    let creatureCenterX = this.x_pos + this.size / 2;
+                    let creatureCenterY = this.y_pos + this.size / 2;
+
+                    let foodCenterX = food_list[i].x_pos + foodSize / 2; // Assuming foodSize is the food's dimension
+                    let foodCenterY = food_list[i].y_pos + foodSize / 2;
+
+                    // Distance from the centers
+                    let dx = foodCenterX - creatureCenterX;
+                    let dy = foodCenterY - creatureCenterY;
                     let distance = Math.round(Math.sqrt(dx * dx + dy * dy));
         
                     if(nearestDistance == false || nearestDistance > distance)
@@ -390,8 +433,8 @@ export class Creature
         let rect = this.container;
         let minX = rect.left;
         let minY = rect.top;
-        let maxX = minX + rect.width - creatureSize;
-        let maxY = minY + rect.height - creatureSize;   
+        let maxX = minX + rect.width - this.size;
+        let maxY = minY + rect.height - this.size;   
 
         let pointX = Math.floor(Math.random() * (maxX - minX) + minX);
         let pointY = Math.floor(Math.random() * (maxY - minY) + minY);
