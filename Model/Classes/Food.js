@@ -9,9 +9,10 @@ export class Food
         this.exists = true;
     }
 
-    spawn(container)
+    spawn(container_)
     {
-        this.body = document.createElement('img');        
+        this.body = document.createElement('img');
+        let container = document.getElementById(container_);
 
         let rect = container.getBoundingClientRect();
         let minX = rect.left;

@@ -2,7 +2,7 @@ import { TimeControl } from "../Model/Classes/TimeControl.js";
 import { Creature } from "../Model/Classes/Creature.js";
 import { Food } from "../Model/Classes/Food.js";
 import { StorageManager } from "../Model/Utilities/StorageManager.js";
-import { creatures, food_list } from "./Stores.js";
+import { creatures, eggs, food_list } from "./Stores.js";
 import { feedingFrequency, foodToSpawn, gameOnline, baseLotlSpeed, turnLength, creaturesToSpawn, agingTime, maxAge, metabolismRate } from "./config.js";
 import { drawTimer, drawGameContainer, drawPlaceHolder, drawVariablesPanel, drawVariablesPanel2, drawVariablesPanel3 } from "../View/ViewDrawing.js";
 
@@ -24,9 +24,9 @@ document.addEventListener('DOMContentLoaded', ()=>
         let timeControl = new TimeControl(btn_pause, btn_play, timeDisplay);
         timeControl.run();
     
-        Init(game_container, game_container_data);
+        Init('game_container', game_container_data);
     
-        gameLoop(timeControl, game_container);
+        gameLoop(timeControl, 'game_container');
 
         game_container.addEventListener('click', (event)=>
         {
@@ -75,6 +75,15 @@ function gameLoop(timeControl, game_container)
         }
     };
 
+    let hatchingControl = ()=>
+    {
+        //console.log(eggs);
+        for(let i = 0; i < eggs.length; i++)
+        {            
+            eggs[i].hatch();
+        }
+    }
+
     //--------------------------------------------------
     // - - - - - - - [ Game Loop ]
     //--------------------------------------------------
@@ -89,6 +98,8 @@ function gameLoop(timeControl, game_container)
                 foodControl();
                 storageManager.WriteSS('lastFed', timeControl.time);
             }
+
+            hatchingControl();
 
             timeControl.miniTime += 1;
         }

@@ -1,11 +1,12 @@
-import { food_list, creatures } from '../../Controller/Stores.js';
-import { foodSize, creatureSize, nutrition, minimumMatingAge } from '../../Controller/config.js';
+import { food_list, creatures, eggs } from '../../Controller/Stores.js';
+import { foodSize, creatureSize, nutrition, minimumMatingAge, maxCreatureSize, matingCooldownTime } from '../../Controller/config.js';
 import { StorageManager } from '../Utilities/StorageManager.js';
 import { drawCreaturePlate, updateEnergy, updateAge, removeCreaturePlate, updateMating, updateMatingCooldown } from '../../View/ViewDrawing.js';
+import { Egg } from './Egg.js';
 
 export class Creature
 {
-    constructor(container, container_data, number, randomSpawn = true, position = false)
+    constructor(container_, container_data, number, randomSpawn = true, position = false)
     {
         this.age = 0;
         this.size = creatureSize;
@@ -13,8 +14,8 @@ export class Creature
         this.name = `Lotl ${number+1}`;
         this.maxAge = this.setMaxAge();
         this.container = container_data;
-        this.containerId = container.id;
-        this.spawn(container, randomSpawn, position);
+        this.containerId = container_;
+        this.spawn(container_, randomSpawn, position);
         this.disorientation = 0;
         this.energy = 50;
         this.destinationPoint = null;
@@ -26,14 +27,15 @@ export class Creature
         this.mating = false;
         this.mateName = false;
         this.matingTimer = 0;
-        this.matingCooldown = 0;
+        this.matingCooldown = 0;        
 
         this.setGender();
     }
 
-    spawn(container, randomSpawn, position = false)
+    spawn(container_, randomSpawn, position = false)
     {
         this.body = document.createElement('img');
+        let container = document.getElementById(container_);
 
         let pointX;
         let pointY;
@@ -52,16 +54,16 @@ export class Creature
         {
             pointX = position.x_pos;
             pointY = position.y_pos;
-        }
+        }        
         
         this.body.style.top = `${pointY - Math.floor(this.size / 2)}px`;
         this.body.style.left = `${pointX - Math.floor(this.size / 2)}px`;        
-        this.body.src = "../Resources/ax2.webp";
+        this.body.src = "../Resources/ax2.webp";        
 
         this.x_pos = pointX;
         this.y_pos = pointY;        
 
-        this.body.classList += `absolute duration-500 hover:drop-shadow-[0_0_35px_rgba(255,102,102,1)] hover:saturate-150`;
+        this.body.classList += 'absolute duration-500 hover:drop-shadow-[0_0_35px_rgba(255,102,102,1)] hover:saturate-150';
         this.body.width = this.size;
         this.body.height = this.size;
         this.body.title = this.name;
@@ -203,21 +205,21 @@ export class Creature
                     creatures[i].mating = false;
                     creatures[i].mateName = false;
                     creatures[i].destinationPoint = null;
-                    creatures[i].matingCooldown = 100;
+                    creatures[i].matingCooldown = matingCooldownTime;
 
-                    let game_container = document.getElementById('game_container');
+                    let game_container = document.getElementById(this.containerId);
                     let game_container_data = game_container.getBoundingClientRect();
-                    let newLotlNumber = this.findLastLotl();
-
-                    let newLotl = new Creature(game_container, game_container_data, newLotlNumber, false, {x_pos: creatures[i].x_pos, y_pos: creatures[i].y_pos});
-                    creatures.push(newLotl);
+                    let newLotlNumber = Creature.findLastLotl();                    
+                    let position = {x_pos: this.x_pos, y_pos: this.y_pos};                    
+                    
+                    let newEgg = new Egg(this.containerId, position);
                     break;
                 }
             }
         }
     }
 
-    findLastLotl()
+    static findLastLotl()
     {
         let lastLotl = false;
         for(let i = 0; i < creatures.length; i++)
@@ -361,9 +363,17 @@ export class Creature
             {
                 let foodConsumed = this.consumeFood(this.destinationPoint);
                 if(foodConsumed)
-                {                    
-                    this.energy += nutrition;
-                    this.size+= Math.floor(nutrition / 2);
+                {
+                    let addingSize = Math.floor(nutrition / 2);
+                    if((this.size + addingSize) <= maxCreatureSize)
+                    {
+                        this.size+= addingSize;
+                    }
+                    if((this.size + addingSize) > maxCreatureSize)
+                    {
+                        this.size = maxCreatureSize;
+                    }
+                    this.energy += nutrition;                    
                     this.body.height = this.size;
                     this.body.width = this.size;
                     if(this.activePlate)
@@ -497,7 +507,7 @@ export class Creature
         this.dying = true;
         removeCreaturePlate(this);
         setTimeout(() =>
-            {
+        {
                 this.body.remove();
     
                 for(let i = 0; i < creatures.length; i++)
