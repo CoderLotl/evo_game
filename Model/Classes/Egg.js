@@ -16,7 +16,12 @@ export class Egg
         this.body.style.left = `${position.x_pos}px`;
         this.x_pos = position.x_pos;
         this.y_pos = position.y_pos;
-        this.body.src = '../Resources/egg1.png';        
+
+        let min = 2;
+        let max = 10;
+        let rand = (Math.floor(Math.random() * (max - min + 1) + min));
+
+        this.body.src = `../Resources/egg${rand}.png`;
         this.body.width = 30;
         this.body.height = 30;
         this.body.title = 'a lotl egg!';

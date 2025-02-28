@@ -57,8 +57,14 @@ export class Creature
         }        
         
         this.body.style.top = `${pointY - Math.floor(this.size / 2)}px`;
-        this.body.style.left = `${pointX - Math.floor(this.size / 2)}px`;        
-        this.body.src = "../Resources/ax2.webp";        
+        this.body.style.left = `${pointX - Math.floor(this.size / 2)}px`;      
+        
+        // RANDOM AX COLOR
+        let min = 2;
+        let max = 8;
+        let rand = (Math.floor(Math.random() * (max - min + 1) + min));
+        
+        this.body.src = `../Resources/ax${rand}.gif`;
 
         this.x_pos = pointX;
         this.y_pos = pointY;        
