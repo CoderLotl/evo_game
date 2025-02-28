@@ -203,7 +203,7 @@ export function drawCreaturePlate(container, creature)
 
     let plate = document.createElement('span');
     container.append(plate);
-    plate.classList = 'min-w-[100px] min-h-[100px] bg-slate-300 absolute rounded-md flex flex-col p-2 italic';
+    plate.classList = 'min-w-[100px] min-h-[100px] bg-slate-300 absolute rounded-md flex flex-col p-2 italic z-40';
     plate.id = 'creature_plate';
     plate.dataset.creature = creature.name;
 

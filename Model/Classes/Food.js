@@ -32,7 +32,7 @@ export class Food
         this.body.src = "../Resources/plant.png";
         this.body.style.width = `${foodSize}px`;
         this.body.style.height = `${foodSize}px`;
-        this.body.classList += `duration-500 hover:drop-shadow-[0_0_35px_rgba(51,204,51,1)] hover:saturate-150`;
+        this.body.classList += `duration-500 hover:drop-shadow-[0_0_35px_rgba(51,204,51,1)] hover:saturate-150 z-10`;
 
         container.appendChild(this.body);
     }
